@@ -1,3 +1,3 @@
-# Hardhat Boilerplate
+# Deposits
 
-This repository is a fork of the hardhat-hackathon-boilerplate with the frontend replaced with swheel33's Next.js boilerplate
+This is a deposits DApp that handles the issue of facebook marketplace deposit scams using the blockchain
