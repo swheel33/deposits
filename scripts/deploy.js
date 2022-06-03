@@ -25,6 +25,7 @@ async function main() {
   const deposit = await Deposit.deploy();
   await deposit.deployed();
 
+
   console.log("Deposit deployed at address:", deposit.address);
 
 
@@ -38,11 +39,12 @@ async function main() {
 
   console.log("Deposit Factory deployed at address:", depositFactory.address);
 
-  // We also save the contract's artifacts and address in the frontend directory
-  saveFrontendFiles(depositFactory);
+  // We also save the contract's artifacts in the frontend directory
+  saveFrontendFiles('DepositFactory');
+  saveFrontendFiles('Deposit');
 }
 
-function saveFrontendFiles(deposit) {
+function saveFrontendFiles(name) {
   const fs = require("fs");
   const contractsDir = __dirname + "/../frontend/contracts";
 
@@ -50,16 +52,11 @@ function saveFrontendFiles(deposit) {
     fs.mkdirSync(contractsDir);
   }
 
-  fs.writeFileSync(
-    contractsDir + "/contract-address.json",
-    JSON.stringify({ Deposit: deposit.address }, undefined, 2)
-  );
-
-  const DepositFactoryArtifact = artifacts.readArtifactSync("DepositFactory");
+  const ContractArtifact = artifacts.readArtifactSync(name);
 
   fs.writeFileSync(
-    contractsDir + "/DepositFactory.json",
-    JSON.stringify(DepositFactoryArtifact, null, 2)
+    contractsDir + `/${name}.json`,
+    JSON.stringify(ContractArtifact, null, 2)
   );
 }
 

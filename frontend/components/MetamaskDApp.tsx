@@ -13,14 +13,20 @@ export default function MetamaskDApp() {
     const provider = useProvider()
     const ENSNames = useENSNames(provider)
 
+    provider.on('network', (newNetwork, oldNetwork) => {
+        if (oldNetwork) {
+            window.location.reload();
+        }
+    })
+
     return (
-        <DApp 
+         <DApp 
         chainId={chainId}
         accounts={accounts}
         error={error}
         isActivating={isActivating}
         isActive={isActive}
         provider={provider}
-        ENSNames={ENSNames}/>
+        ENSNames={ENSNames}/> 
     )
 }

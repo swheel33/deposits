@@ -30,6 +30,8 @@ contract Deposit is Initializable {
 
     ///Please wait 24 hours from the agreed date to claim
     error NotAfterAgreedDate();
+
+    event Number(uint _value);
     
     modifier onAgreedDate() {
         if (block.timestamp < agreedDate || block.timestamp >= agreedDate + 1 days) {
@@ -81,6 +83,14 @@ contract Deposit is Initializable {
     function claimFunds() external inState(State.Locked) {
         state = State.Inactive;
         token.transferFrom(address(this), seller, depositValue);
+    }
+
+    function getContractValue() external {
+        emit Number(depositValue);
+    }
+
+    function contractTokens() external {
+        emit Number(token.balanceOf(address(this)));
     }
 
 }
