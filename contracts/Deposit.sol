@@ -22,16 +22,18 @@ contract Deposit is Initializable {
     ///The contract is not in the correct state to call this function
     error InvalidState();
 
-    ///The correct amount was not deposited into the contract
-    error IncorrectDeposit();
-
     ///Only the buyer can call this function
     error OnlyBuyer();
+
+    ///Only the seller can call this function
+    error OnlySeller();
 
     ///Please wait 24 hours from the agreed date to claim
     error NotAfterAgreedDate();
 
-    event Number(uint _value);
+
+    event ContestComplete();
+    event ClaimComplete();
     
     modifier onAgreedDate() {
         if (block.timestamp < agreedDate || block.timestamp >= agreedDate + 1 days) {
@@ -51,6 +53,13 @@ contract Deposit is Initializable {
     modifier onlyBuyer() {
         if (msg.sender != buyer) {
             revert OnlyBuyer();
+        }
+        _;
+    }
+
+    modifier onlySeller() {
+        if (msg.sender != seller) {
+            revert OnlySeller();
         }
         _;
     }
@@ -77,20 +86,14 @@ contract Deposit is Initializable {
 
     function contestItem() external onlyBuyer inState(State.Locked) {
         state = State.Inactive;
-        token.transferFrom(address(this), buyer, depositValue);
+        token.transfer(buyer, depositValue);
+        emit ContestComplete();
     }
 
-    function claimFunds() external inState(State.Locked) {
+    function claimFunds() external onlySeller inState(State.Locked) {
         state = State.Inactive;
-        token.transferFrom(address(this), seller, depositValue);
-    }
-
-    function getContractValue() external {
-        emit Number(depositValue);
-    }
-
-    function contractTokens() external {
-        emit Number(token.balanceOf(address(this)));
+        token.transfer(seller, depositValue);
+        emit ClaimComplete();
     }
 
 }

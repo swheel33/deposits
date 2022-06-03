@@ -26,7 +26,7 @@ export default function DApp({chainId, accounts, error, isActivating, isActive, 
  
     //Contract Addresses
     const daiContractAddress = '0x5eD8BD53B0c3fa3dEaBd345430B1A3a6A4e8BD7C';
-    const depositFactoryAddress = '0x83c61788908494FD106CF41B99CffCB865618a33';
+    const depositFactoryAddress = '0xec26aAE292d80120d36649082F070e7F0B7F969c';
 
     //ethers signer and contracts
     const signer = provider.getSigner();
@@ -36,12 +36,16 @@ export default function DApp({chainId, accounts, error, isActivating, isActive, 
     const approvalAmount = 100;
 
     const depositHandler = async () => {
-        const tx = await depositFactory.createDeposit(approvalAmount, 1654193815 , daiContractAddress);
-        const receipt = await tx.wait();
-        console.log(receipt);
-        const emittedAddress = receipt.logs[0].address;
-        setNewContract(emittedAddress);
-        console.log(`Contract creation successful! Created contract address is: ${emittedAddress}.`)
+        try {
+            const tx = await depositFactory.createDeposit(approvalAmount, 1654193815 , daiContractAddress);
+            const receipt = await tx.wait();
+            const emittedAddress = receipt.logs[0].address;
+            setNewContract(emittedAddress);
+            console.log(`Contract creation successful! Created contract address is: ${emittedAddress}.`);
+        } catch (error) {
+            console.log(error);
+        }
+        
     }
     
     //Gets all previous contract events created for validation with ContractForm
@@ -52,13 +56,19 @@ export default function DApp({chainId, accounts, error, isActivating, isActive, 
         return addresses;
     }
     
-    //Not final implementation but need some way to catch errors with network changing on backend
+    //Not the prettiest but need some way of handling changing networks breaking the app
+    const delay = ms => new Promise(res => setTimeout(res, ms));
+    const handleWrongNetwork = async () => {
+        await delay(5000);
+        window.location.reload();
+    }
+    
     useEffect(() => {
-        if(!isCorrectChain) {
-            alert('Please change networks to the Rinkeby Test Network. Page will reload upon closing this message')
-            window.location.reload()
+        if (!isCorrectChain) {
+            handleWrongNetwork()
         }
     } , [chainId])
+
 
     return (
         <div>
@@ -72,10 +82,11 @@ export default function DApp({chainId, accounts, error, isActivating, isActive, 
                                 tokenAddress={daiContractAddress} 
                                 tokenContract={daiContract} 
                                 approvalAmount={approvalAmount}
-                                signer={signer}/>}
+                                signer={signer}
+                                accounts={accounts}/>}
                 {!newContract && <ContractForm setNewContract={setNewContract} allPrevContracts={allPrevContracts()}/>}
             </div>}
-        
+            {!isCorrectChain && <Text>Please Connect to the Rinkeby Testnet. Page will reload in 5 seconds</Text>}
         </div>
         
     )
