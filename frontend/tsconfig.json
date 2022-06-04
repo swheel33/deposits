@@ -23,7 +23,7 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx"
-  ],
+, "components/DatePickerField.jsx", "components/NewContractForm.jsx"  ],
   "exclude": [
     "node_modules"
   ]

@@ -16,9 +16,9 @@ contract DepositFactory is Ownable{
         contractAddress = _contractAddress;
     }
     
-    function createDeposit(uint _depositValue, uint _agreedDate, address _token) public {
+    function createDeposit(uint _depositValue, uint _agreedDate, address _token, address payable _seller) public {
         address clone = Clones.clone(contractAddress);
-        Deposit(clone).initialize(_depositValue, _agreedDate, _token);
+        Deposit(clone).initialize(_depositValue, _agreedDate, _token, _seller);
         emit DepositCreated(clone);
     }
 }

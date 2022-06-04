@@ -8,10 +8,11 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 contract Deposit is Initializable {
     IERC20 private token;
-    uint public depositValue;
-    address payable public seller;
-    address payable public buyer;
-    uint public agreedDate;
+    uint private depositValue;
+    address payable private seller;
+    address payable private buyer;
+    uint private agreedDate;
+    uint private deadline;
 
     enum State {Created, Locked, Inactive}
     State public state;
@@ -36,14 +37,14 @@ contract Deposit is Initializable {
     event ClaimComplete();
     
     modifier onAgreedDate() {
-        if (block.timestamp < agreedDate || block.timestamp >= agreedDate + 1 days) {
+        if (block.timestamp < agreedDate || block.timestamp >= deadline) {
             revert NotOnAgreedDate();
         }
         _;
     }
 
     modifier afterAgreedDate() {
-        if(block.timestamp <= agreedDate + 1 days) {
+        if(block.timestamp <= deadline) {
             revert NotAfterAgreedDate();
         }
         _;
@@ -70,13 +71,46 @@ contract Deposit is Initializable {
         _;
     }
 
-    function initialize(uint _depositValue, uint _agreedDate, address _token) initializer public {
-        seller = payable(msg.sender);
+    function initialize(uint _depositValue, uint _agreedDate, address _token, address payable _seller) initializer public {
+        seller = _seller;
         depositValue = _depositValue;
         agreedDate = _agreedDate;
+        //143 weeks is approximately a day in real time for some reason
+        deadline = agreedDate + 143 weeks;
         token = IERC20(_token);
     }
 
+
+    //Getters
+    function getDepositValue() public view returns(uint) {
+        return depositValue;
+    }
+
+    function getAgreedDate() public view returns(uint) {
+        return agreedDate;
+    }
+
+    function getSeller() public view returns(address) {
+        return seller;
+    }
+
+    function getBuyer() public view returns(address) {
+        return buyer;
+    }
+
+    function getDeadline() public view returns(uint) {
+        return deadline;
+    }
+
+    function getCurrentDate() public view returns(uint) {
+        return block.timestamp;
+    }
+
+    function getCurrentState() public view returns(string memory) {
+        if (state == State.Created) return "Created";
+        if (state == State.Locked) return "Locked";
+        if (state == State.Inactive) return "Inactive";
+    }
 
     function confirmDeposit() external payable inState(State.Created) {
         buyer = payable(msg.sender);
@@ -90,7 +124,7 @@ contract Deposit is Initializable {
         emit ContestComplete();
     }
 
-    function claimFunds() external onlySeller inState(State.Locked) {
+    function claimFunds() external onlySeller afterAgreedDate inState(State.Locked) {
         state = State.Inactive;
         token.transfer(seller, depositValue);
         emit ClaimComplete();

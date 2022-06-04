@@ -60,6 +60,27 @@ export default function DepositInteraction({contract, tokenAddress, tokenContrac
         }
     }
 
+    const getInfo = async () => {
+        try {
+            const agreedDateUnix = await depositContract.getAgreedDate();
+            const depositValue = await depositContract.getDepositValue();
+            const deadlineUnix = await depositContract.getDeadline();
+            const currentBlockTime = await depositContract.getCurrentDate();
+            const buyer = await depositContract.getBuyer();
+            const seller = await depositContract.getSeller();
+            const state = await depositContract.getCurrentState();
+            console.log(`Deposit value is: ${depositValue.toString()}`);
+            console.log(`Agreed date is ${agreedDateUnix.toString()}`);
+            console.log(`Deadline is: ${deadlineUnix}`);
+            console.log(`Current time is: ${currentBlockTime}`);
+            console.log(`Buyer is: ${buyer}`);
+            console.log(`Seller is: ${seller}`);
+            console.log(`State is: ${state}`);
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     //This section along with the useEffect hooks keep track of emitted events to check the stage of the contract if the page is refreshed
 
     const getApprovalStatus = async () => {
@@ -130,6 +151,7 @@ export default function DepositInteraction({contract, tokenAddress, tokenContrac
             {(!didDeposit && didApprove) && <Button onClick={handleDeposit}>Deposit</Button>}
             {(didDeposit && !didContest) && <Button onClick={handleContestItem}>Contest Item</Button>}
             {(didDeposit && !didClaim) && <Button onClick={handleClaimFunds}>Claim Funds</Button>}
+            <Button onClick={getInfo}>Get Info</Button>
         </Container>
     )
 }
