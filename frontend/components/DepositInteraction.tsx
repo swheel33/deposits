@@ -1,17 +1,20 @@
-import { Button, Container } from "@chakra-ui/react";
+import { Button, Container, Text } from "@chakra-ui/react";
 import { JsonRpcSigner } from "@ethersproject/providers";
 import { Contract, ethers } from "ethers";
 import { useEffect, useState } from "react";
 import DepositAbi from '../contracts/Deposit.json';
 
 
-export default function DepositInteraction({contract, tokenAddress, tokenContract, approvalAmount, signer, accounts} : 
-    {contract: string, tokenAddress: string, tokenContract: Contract, approvalAmount: number, signer: JsonRpcSigner, accounts: string[]}) {
+export default function DepositInteraction({contract, tokenContract, approvalAmount, signer, accounts} : 
+    {contract: string, tokenContract: Contract, approvalAmount: number, signer: JsonRpcSigner, accounts: string[]}) {
     
     const [didDeposit, setDidDeposit] = useState(false);
     const [didApprove, setDidApprove] = useState(false);
     const [didContest, setDidContest] = useState(false);
     const [didClaim, setDidClaim] = useState(false);
+    const [contestEligible, setContestEligible] = useState(false);
+    const [claimEligible, setClaimEligible] = useState(false);
+
 
     const depositContract = new ethers.Contract(contract, DepositAbi.abi, signer)
     
@@ -129,6 +132,34 @@ export default function DepositInteraction({contract, tokenAddress, tokenContrac
         }
     }
 
+    const getContestEligibility = async () => {
+        try {
+            if (didDeposit) {
+                const agreedDateUnix = await depositContract.getAgreedDate();
+                const deadlineUnix = await depositContract.getDeadline();
+                const agreedDate = new Date(agreedDateUnix * 1000);
+                const deadline = new Date(deadlineUnix * 1000);
+                const now = new Date();
+                setContestEligible(now > agreedDate && now < deadline);
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    const getClaimEligibility = async () => {
+        try {
+            if(!didContest) {
+                const deadlineUnix = await depositContract.getDeadline();
+                const deadline = new Date(deadlineUnix * 1000);
+                const now = new Date();
+                setClaimEligible(now > deadline);
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     useEffect(() => {
         getApprovalStatus()
     },[didApprove])
@@ -144,13 +175,22 @@ export default function DepositInteraction({contract, tokenAddress, tokenContrac
     useEffect(() => {
         getClaimStatus()
     },[didClaim])
+
+    //Not only on mount cause it's possible that immediately after deposit you could contest if the agreed upon date is today
+    useEffect(() => {
+        getContestEligibility();
+    },[didDeposit])
+
+    useEffect(() => {
+        getClaimEligibility(); 
+    },[])
     
     return (
         <Container>
             {!didApprove && <Button onClick={handleApprove}>Approve</Button>}
             {(!didDeposit && didApprove) && <Button onClick={handleDeposit}>Deposit</Button>}
-            {(didDeposit && !didContest) && <Button onClick={handleContestItem}>Contest Item</Button>}
-            {(didDeposit && !didClaim) && <Button onClick={handleClaimFunds}>Claim Funds</Button>}
+            {(contestEligible && !didContest) && <Button onClick={handleContestItem}>Contest Item</Button>}
+            {(claimEligible && !didClaim) && <Button onClick={handleClaimFunds}>Claim Funds</Button>}
             <Button onClick={getInfo}>Get Info</Button>
         </Container>
     )

@@ -25,7 +25,8 @@ export default function NewContractForm({setApprovalAmount, setMeetupDate }) {
         })}
         onSubmit={values => {
             setApprovalAmount(values.amount);
-            setMeetupDate(values.meetupDate.getTime());
+            //Need additional formatting since js uses ms for timestamp and blockchain is in s
+            setMeetupDate(parseInt(values.meetupDate.getTime()/1000));
         }}
      >
         {formik =>  (

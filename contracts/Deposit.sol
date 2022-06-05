@@ -17,7 +17,7 @@ contract Deposit is Initializable {
     enum State {Created, Locked, Inactive}
     State public state;
 
-    ///Not on the agreed date of transaction
+    ///Please wait until the agreed upon date to contenst
     error NotOnAgreedDate();
 
     ///The contract is not in the correct state to call this function
@@ -29,7 +29,7 @@ contract Deposit is Initializable {
     ///Only the seller can call this function
     error OnlySeller();
 
-    ///Please wait 24 hours from the agreed date to claim
+    ///Please wait 24 hours after the agreed upon date to claim
     error NotAfterAgreedDate();
 
 
@@ -37,7 +37,7 @@ contract Deposit is Initializable {
     event ClaimComplete();
     
     modifier onAgreedDate() {
-        if (block.timestamp < agreedDate || block.timestamp >= deadline) {
+        if (block.timestamp < agreedDate || block.timestamp > deadline) {
             revert NotOnAgreedDate();
         }
         _;
@@ -75,8 +75,7 @@ contract Deposit is Initializable {
         seller = _seller;
         depositValue = _depositValue;
         agreedDate = _agreedDate;
-        //143 weeks is approximately a day in real time for some reason
-        deadline = agreedDate + 143 weeks;
+        deadline = agreedDate + 1 days;
         token = IERC20(_token);
     }
 
@@ -102,10 +101,6 @@ contract Deposit is Initializable {
         return deadline;
     }
 
-    function getCurrentDate() public view returns(uint) {
-        return block.timestamp;
-    }
-
     function getCurrentState() public view returns(string memory) {
         if (state == State.Created) return "Created";
         if (state == State.Locked) return "Locked";
@@ -118,7 +113,7 @@ contract Deposit is Initializable {
         token.transferFrom(msg.sender, address(this), depositValue);
     }
 
-    function contestItem() external onlyBuyer inState(State.Locked) {
+    function contestItem() external onlyBuyer onAgreedDate inState(State.Locked) {
         state = State.Inactive;
         token.transfer(buyer, depositValue);
         emit ContestComplete();

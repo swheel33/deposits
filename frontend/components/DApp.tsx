@@ -27,7 +27,7 @@ export default function DApp({chainId, accounts, error, isActivating, isActive, 
  
     //Contract Addresses
     const daiContractAddress = '0x5eD8BD53B0c3fa3dEaBd345430B1A3a6A4e8BD7C';
-    const depositFactoryAddress = '0x769f63fcE9421110669b9771CC9151A41be2373C';
+    const depositFactoryAddress = '0x68EC9875093f5B851715c5F68837509491569f26';
 
     //ethers signer and contracts
     const signer = provider.getSigner();
@@ -79,6 +79,8 @@ export default function DApp({chainId, accounts, error, isActivating, isActive, 
         }
     },[approvalAmount, meetupDate])
 
+
+
     return (
         <div>
             {isCorrectChain && 
@@ -87,7 +89,6 @@ export default function DApp({chainId, accounts, error, isActivating, isActive, 
                 {newContract && <Tag>Contract Created: {newContract}</Tag>}
                 {newContract && <DepositInteraction 
                                 contract={newContract} 
-                                tokenAddress={daiContractAddress} 
                                 tokenContract={daiContract} 
                                 approvalAmount={approvalAmount}
                                 signer={signer}
