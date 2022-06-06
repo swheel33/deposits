@@ -1,13 +1,13 @@
 import Provider from '../components/Provider'
 import { ChakraProvider } from '@chakra-ui/react';
-import App from '../components/App'
+import ConnectorHandler from '../components/ConnectorHandler';
 
 export default function Home() {
   return (
     <div>
       <Provider />
       <ChakraProvider>
-        <App />
+        <ConnectorHandler />
       </ChakraProvider>
     </div>
   )
