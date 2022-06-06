@@ -10,20 +10,14 @@ import ExistingContractForm from "./ExistingContractForm"
 import NewContractForm from "./NewContractForm"
 
 
-export default function DApp({chainId, accounts, error, isActivating, isActive, provider, ENSNames} : {
-    chainId: number,
-    accounts: string[],
-    error: Error,
-    isActivating: boolean,
-    isActive: boolean,
-    provider: Web3Provider,
-    ENSNames: string[]
-}) {
+export default function DApp({chainId, accounts, error, isActivating, isActive, provider, ENSNames}) {
     //Correct chain check
     const isCorrectChain = chainId === 4;
 
     //Defining address of the contract that will get created when starting the deposit sequence
     const [newContract, setNewContract] = useState('');
+
+    const [createContractLoad, setCreateContractLoad] = useState(false);
  
     //Contract Addresses
     const daiContractAddress = '0x5eD8BD53B0c3fa3dEaBd345430B1A3a6A4e8BD7C';
@@ -41,6 +35,7 @@ export default function DApp({chainId, accounts, error, isActivating, isActive, 
      const depositHandler = async () => {
         try {
             const tx = await depositFactory.createDeposit(approvalAmount, meetupDate , daiContractAddress, accounts[0]);
+            setCreateContractLoad(true);
             const receipt = await tx.wait();
             const emittedAddress = receipt.logs[0].address;
             setNewContract(emittedAddress);
@@ -94,7 +89,7 @@ export default function DApp({chainId, accounts, error, isActivating, isActive, 
                                 signer={signer}
                                 accounts={accounts}/>}
                 {!newContract && <ExistingContractForm setNewContract={setNewContract} allPrevContracts={allPrevContracts()}/>}
-                {!newContract && <NewContractForm setApprovalAmount={setApprovalAmount} setMeetupDate={setMeetupDate} />}
+                {!newContract && <NewContractForm setApprovalAmount={setApprovalAmount} setMeetupDate={setMeetupDate} createContractLoad={createContractLoad}/>}
             </div>}
             {!isCorrectChain && <Text>Please Connect to the Rinkeby Testnet. Page will reload in 5 seconds</Text>}
         </div>

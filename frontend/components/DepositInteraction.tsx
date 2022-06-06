@@ -14,6 +14,10 @@ export default function DepositInteraction({contract, tokenContract, approvalAmo
     const [didClaim, setDidClaim] = useState(false);
     const [contestEligible, setContestEligible] = useState(false);
     const [claimEligible, setClaimEligible] = useState(false);
+    const [agreedDate, setAgreedDate] = useState(new Date());
+    const [deadline, setDeadline] = useState(new Date());
+    const [approvalLoad, setApprovalLoad] = useState(false);
+    const [depositLoad, setDepositLoad] = useState(false);
 
 
     const depositContract = new ethers.Contract(contract, DepositAbi.abi, signer)
@@ -21,6 +25,7 @@ export default function DepositInteraction({contract, tokenContract, approvalAmo
     const handleApprove = async () => {
         try {
             const tx = await tokenContract.approve(contract, approvalAmount);
+            setApprovalLoad(true)
             await tx.wait();
             setDidApprove(true);
             console.log('Successful Approval!');
@@ -33,6 +38,7 @@ export default function DepositInteraction({contract, tokenContract, approvalAmo
     const handleDeposit = async () => {
         try {
             const tx = await depositContract.confirmDeposit();
+            setDepositLoad(true);
             await tx.wait();
             setDidDeposit(true);
             console.log('Successful Deposit!');
@@ -132,13 +138,29 @@ export default function DepositInteraction({contract, tokenContract, approvalAmo
         }
     }
 
+    const getAgreedDate = async () => {
+        try {
+            const agreedDateUnix = await depositContract.getAgreedDate();
+            const agreedDateReadable = new Date(agreedDateUnix*1000);
+            setAgreedDate(agreedDateReadable);
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    const getDeadline = async () => {
+        try {
+            const deadlineUnix = await depositContract.getDeadline();
+            const deadlineReadable = new Date(deadlineUnix*1000);
+            setDeadline(deadlineReadable);
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     const getContestEligibility = async () => {
         try {
             if (didDeposit) {
-                const agreedDateUnix = await depositContract.getAgreedDate();
-                const deadlineUnix = await depositContract.getDeadline();
-                const agreedDate = new Date(agreedDateUnix * 1000);
-                const deadline = new Date(deadlineUnix * 1000);
                 const now = new Date();
                 setContestEligible(now > agreedDate && now < deadline);
             }
@@ -149,9 +171,7 @@ export default function DepositInteraction({contract, tokenContract, approvalAmo
 
     const getClaimEligibility = async () => {
         try {
-            if(!didContest) {
-                const deadlineUnix = await depositContract.getDeadline();
-                const deadline = new Date(deadlineUnix * 1000);
+            if(!didContest && didDeposit) {
                 const now = new Date();
                 setClaimEligible(now > deadline);
             }
@@ -161,34 +181,40 @@ export default function DepositInteraction({contract, tokenContract, approvalAmo
     }
 
     useEffect(() => {
-        getApprovalStatus()
+        getApprovalStatus();
     },[didApprove])
 
     useEffect(() => {
-        getDepositStatus()
+        getDepositStatus();
     },[didDeposit])
 
     useEffect(() => {
-        getContestStatus()
+        getContestStatus();
     },[didContest])
 
     useEffect(() => {
-        getClaimStatus()
+        getClaimStatus();
     },[didClaim])
+
+    useEffect(() => {
+        getAgreedDate();
+        getDeadline();
+        getClaimEligibility();
+    },[])
 
     //Not only on mount cause it's possible that immediately after deposit you could contest if the agreed upon date is today
     useEffect(() => {
         getContestEligibility();
     },[didDeposit])
-
-    useEffect(() => {
-        getClaimEligibility(); 
-    },[])
     
     return (
         <Container>
-            {!didApprove && <Button onClick={handleApprove}>Approve</Button>}
-            {(!didDeposit && didApprove) && <Button onClick={handleDeposit}>Deposit</Button>}
+            {!didApprove && <Button onClick={handleApprove} isLoading={approvalLoad} loadingText='Approving'>Approve</Button>}
+            {(!didDeposit && didApprove) && <Button onClick={handleDeposit} isLoading={depositLoad} loadingText='Depositing'>Deposit</Button>}
+            {(!contestEligible && didDeposit) && <Text>The agreed date is {agreedDate.toDateString()}. Please come back to this page on the agreed date to contest the deposit if
+            you are the buyer, or 24 hours after the agreed date to claim the deposit as a seller. {
+                
+            }</Text>}
             {(contestEligible && !didContest) && <Button onClick={handleContestItem}>Contest Item</Button>}
             {(claimEligible && !didClaim) && <Button onClick={handleClaimFunds}>Claim Funds</Button>}
             <Button onClick={getInfo}>Get Info</Button>

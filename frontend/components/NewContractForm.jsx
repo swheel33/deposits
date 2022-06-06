@@ -4,7 +4,7 @@ import * as Yup from 'yup'
 import DatePickerField from "./DatePickerField";
 
 
-export default function NewContractForm({setApprovalAmount, setMeetupDate }) {
+export default function NewContractForm({setApprovalAmount, setMeetupDate, createContractLoad }) {
     const today = new Date();
     let yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
@@ -23,7 +23,7 @@ export default function NewContractForm({setApprovalAmount, setMeetupDate }) {
             .default(undefined)
             .required('Please enter a meetup date')
         })}
-        onSubmit={values => {
+        onSubmit={(values,actions) => {
             setApprovalAmount(values.amount);
             //Need additional formatting since js uses ms for timestamp and blockchain is in s
             setMeetupDate(parseInt(values.meetupDate.getTime()/1000));
@@ -42,7 +42,7 @@ export default function NewContractForm({setApprovalAmount, setMeetupDate }) {
                         <DatePickerField name='meetupDate'/>
                         <FormErrorMessage>{formik.errors.meetupDate}</FormErrorMessage>
                     </FormControl>
-                    <Button type='submit'>Create Deposit</Button> 
+                    <Button type='submit' isLoading={createContractLoad}>Create Deposit</Button> 
                 </VStack>
             </Form> 
         )}
