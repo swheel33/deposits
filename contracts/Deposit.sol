@@ -8,6 +8,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 contract Deposit is Initializable {
     IERC20 private token;
+    address private chosenToken;
     uint private depositValue;
     address payable private seller;
     address payable private buyer;
@@ -77,6 +78,7 @@ contract Deposit is Initializable {
         agreedDate = _agreedDate;
         deadline = agreedDate + 1 days;
         token = IERC20(_token);
+        chosenToken = _token;
     }
 
 
@@ -99,6 +101,10 @@ contract Deposit is Initializable {
 
     function getDeadline() public view returns(uint) {
         return deadline;
+    }
+
+    function getTokenAddress() public view returns(address) {
+        return chosenToken;
     }
 
     function getCurrentState() public view returns(string memory) {

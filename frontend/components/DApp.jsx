@@ -6,6 +6,8 @@ import NewContractForm from './forms/NewContractForm';
 import { useEffect, useState } from 'react';
 import { ethers } from "ethers"
 import DaiAbi from '../abi/DaiAbi.json'
+import TetherAbi from '../abi/TetherAbi.json';
+import USDCAbi from '../abi/USDCAbi.json';
 import DepositFactoryABI from '../contracts/DepositFactory.json'
 import ContractInstance from './contract-related/ContractInstance'
 import DepositABI from '../contracts/Deposit.json';
@@ -23,23 +25,28 @@ export default function DApp() {
 
     //Defining address of the contract that will get created when starting the deposit sequence
     const [newContractAddress, setNewContractAddress] = useState('');
- 
-    //Contract Addresses
-    const daiContractAddress = '0x5eD8BD53B0c3fa3dEaBd345430B1A3a6A4e8BD7C';
-    const depositFactoryAddress = '0x68EC9875093f5B851715c5F68837509491569f26';
-
-    //ethers signer and contracts
-    const [signer, setSigner] = useState();
     
-    const [daiContract, setDaiContract] = useState();
-    const [depositFactoryContract, setDepositFactoryContract] = useState();
-    const [newDepositContract, setNewDepositContract] = useState();
+    //Deposited token choice
+    const daiContractAddress = '0x5eD8BD53B0c3fa3dEaBd345430B1A3a6A4e8BD7C';
+    const usdcContractAddress = '0xeb8f08a975Ab53E34D8a0330E0D34de942C95926';
+    const tetherContractAddress = '0xc66227E44bf1E6F043919A65707b826e3E9f1132';
+    const [chosenTokenAddress, setChosenTokenAddress] = useState();
+    const [chosenTokenABI, setChosenTokenABI] = useState();
+  
+    //Contract Addresses
+    
+    const depositFactoryAddress = '0xAEA66E013CDA1e8675eA757cD9ADDA4b466578Dd';
 
-
+    //State variables for page navigation
     const [isNewContract, setIsNewContract] = useState(false);
     const [isExistingContract, setIsExistingContract] = useState(false)
     const [newlyCreated, setNewlyCreated] = useState(false);
-
+    
+    //ethers signer and contracts
+    const [signer, setSigner] = useState();
+    const [tokenContract, setTokenContract] = useState();
+    const [depositFactoryContract, setDepositFactoryContract] = useState();
+    const [newDepositContract, setNewDepositContract] = useState();
 
     useEffect(() => {
         if(provider) {
@@ -49,10 +56,25 @@ export default function DApp() {
 
     useEffect(() => {
         if(signer) {
-            setDaiContract(new ethers.Contract(daiContractAddress, DaiAbi, signer));
             setDepositFactoryContract(new ethers.Contract(depositFactoryAddress, DepositFactoryABI.abi, signer));
         }
     }, [signer])
+
+    useEffect(() => {
+        if (chosenTokenAddress===daiContractAddress) {
+            setChosenTokenABI(DaiAbi)
+        } else if (chosenTokenAddress===usdcContractAddress) {
+            setChosenTokenABI(USDCAbi)
+        } else if (chosenTokenAddress===tetherContractAddress) {
+            setChosenTokenABI(TetherAbi)
+        }
+    }, [chosenTokenAddress])
+    
+    useEffect(() => {
+        if(signer && chosenTokenAddress && chosenTokenABI) {
+            setTokenContract(new ethers.Contract(chosenTokenAddress, chosenTokenABI, signer));
+        }
+    },[chosenTokenABI])
 
     useEffect(() => {
         if(newContractAddress) {
@@ -77,7 +99,10 @@ export default function DApp() {
                     <Button onClick={() => setIsExistingContract(true)}>Use Existing Deposit Contract</Button>
                 </Flex>}
                 {(!newContractAddress && isNewContract) && <NewContractForm 
-                                                                daiContractAddress={daiContractAddress} 
+                                                                setChosenTokenAddress={setChosenTokenAddress}
+                                                                daiContractAddress={daiContractAddress}
+                                                                usdcContractAddress={usdcContractAddress}
+                                                                tetherContractAddress={tetherContractAddress}
                                                                 depositFactoryContract={depositFactoryContract} 
                                                                 accounts={accounts} 
                                                                 provider={provider}
@@ -92,7 +117,12 @@ export default function DApp() {
                                                                     setIsNewContract={setIsNewContract}
                                                                     />}
                 {newDepositContract && <ContractInstance depositContract={newDepositContract}
-                                                        tokenContract={daiContract} 
+                                                        tokenContract={tokenContract}
+                                                        daiContractAddress={daiContractAddress}
+                                                        usdcContractAddress={usdcContractAddress}
+                                                        tetherContractAddress={tetherContractAddress}
+                                                        chosenTokenAddress={chosenTokenAddress}
+                                                        setChosenTokenAddress={setChosenTokenAddress} 
                                                         depositContractAddress={newContractAddress}
                                                         accounts={accounts}
                                                         newlyCreated={newlyCreated}/>}

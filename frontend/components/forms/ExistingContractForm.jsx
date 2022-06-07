@@ -1,5 +1,6 @@
 import { Button, FormControl, FormErrorMessage, Input, FormLabel, VStack, Box, Flex } from "@chakra-ui/react";
 import { Formik, Field, Form } from 'formik'
+import { InputControl } from 'formik-chakra-ui';
 import { useEffect, useState } from "react";
 import * as Yup from 'yup'
 import BackButton from "./BackButton";
@@ -44,12 +45,8 @@ export default function ExistingContractForm({depositFactoryContract, setNewCont
             >
             {formik =>  (
                 <Form onSubmit={formik.handleSubmit}>
-                    <VStack w={'50%'}>
-                        <FormControl isInvalid={formik.errors.address && formik.touched.address}>
-                            <FormLabel>Contract Address</FormLabel>
-                            <Field as={Input} name='address' value={formik.values.address} {...formik.getFieldProps('address')}/>
-                            <FormErrorMessage>{formik.errors.address}</FormErrorMessage>
-                        </FormControl>
+                    <VStack>
+                        <InputControl name='address' label='Contract Address'/>
                         <Button isDisabled={loading} type='submit'>Submit</Button> 
                     </VStack>
                 </Form> 

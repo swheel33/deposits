@@ -1,10 +1,11 @@
 require("@nomiclabs/hardhat-waffle");
+require("@nomiclabs/hardhat-etherscan");
 
 // The next line is part of the sample project, you don't need it in your
 // project. It imports a Hardhat task definition, that can be used for
 // testing the frontend.
-require("./tasks/faucet");
 require('dotenv').config();
+
 
 // If you are using MetaMask, be sure to change the chainId to 1337
 module.exports = {
@@ -17,6 +18,9 @@ module.exports = {
       url: `https://eth-rinkeby.alchemyapi.io/v2/${process.env.RINKEBY_API_KEY}`,
       accounts: [`${process.env.PRIVATE_KEY}`]
     },
-
+    
+  },
+  etherscan: {
+    apiKey: `${process.env.ETHERSCAN_API_KEY}`
   }
 };

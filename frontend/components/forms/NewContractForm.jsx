@@ -1,26 +1,29 @@
-import { Button, FormControl, FormErrorMessage, Input, FormLabel, VStack, Box, Flex } from "@chakra-ui/react";
+import { Button, FormControl, FormErrorMessage, Input, FormLabel, VStack, Box, Flex, RadioGroup, HStack, Radio } from "@chakra-ui/react";
 import { Formik, Field, Form } from 'formik'
+import { RadioGroupControl, InputControl } from 'formik-chakra-ui';
 import * as Yup from 'yup'
 import DatePickerField from "./DatePickerField";
 import { useState } from 'react'
 import BackButton from "./BackButton";
 
 
-export default function NewContractForm({depositFactoryContract, daiContractAddress, accounts, 
-    setNewContractAddress, setIsNewContract, setIsExistingContract, setNewlyCreated}) {
+export default function NewContractForm({depositFactoryContract, accounts, 
+    setNewContractAddress, setIsNewContract, setIsExistingContract, setNewlyCreated, setChosenTokenAddress,
+    daiContractAddress, usdcContractAddress, tetherContractAddress}) {
     const today = new Date();
     let yesterday = new Date();
     yesterday.setDate(today.getDate() - 1);
 
     const [loading, setLoading] = useState(false);
 
-    const depositHandler = async (approvalAmount, meetupDate) => {
+    const depositHandler = async (approvalAmount, meetupDate, chosenTokenAddress) => {
         try {
             setLoading(true);
-            const tx = await depositFactoryContract.createDeposit(approvalAmount, meetupDate , daiContractAddress, accounts[0]);
+            const tx = await depositFactoryContract.createDeposit(approvalAmount, meetupDate , chosenTokenAddress, accounts[0]);
             const receipt = await tx.wait();
             const emittedAddress = receipt.logs[0].address;
             setNewlyCreated(true);
+            setChosenTokenAddress(chosenTokenAddress);
             setNewContractAddress(emittedAddress);
             console.log(`Contract creation successful! Created contract address is: ${emittedAddress}. Deposit amount is ${approvalAmount} and the agreed date is ${meetupDate}.`);
         } catch (error) {
@@ -33,7 +36,7 @@ export default function NewContractForm({depositFactoryContract, daiContractAddr
         <Flex>
                 <BackButton setIsExistingContract={setIsExistingContract} setIsNewContract={setIsNewContract}/>
                 <Formik
-                    initialValues={{amount: 0, meetupDate: today}}
+                    initialValues={{amount: 0, meetupDate: today, chosenToken: 'dai'}}
                     validationSchema={Yup.object({
                         amount: Yup.number()
                             .required('Required')
@@ -47,17 +50,18 @@ export default function NewContractForm({depositFactoryContract, daiContractAddr
                         })}
                         onSubmit={values => {
                             //Need additional formatting since js uses ms for timestamp and blockchain is in s
-                            depositHandler(values.amount, parseInt(values.meetupDate.getTime()/1000));
+                            depositHandler(values.amount, parseInt(values.meetupDate.getTime()/1000), values.chosenToken);
                         }}
                     >
                     {formik =>  (
                         <Form onSubmit={formik.handleSubmit}>
-                            <VStack w={'50%'}>
-                                <FormControl isInvalid={formik.errors.amount && formik.touched.amount}>
-                                    <FormLabel>Deposit Amount</FormLabel>
-                                    <Field as={Input} name='amount' value={formik.values.amount} />
-                                    <FormErrorMessage>{formik.errors.amount}</FormErrorMessage>
-                                </FormControl>
+                            <VStack>
+                                <InputControl name='amount' label='Deposit Amount'/>
+                                <RadioGroupControl name='chosenToken' label='Deposit Token'>
+                                    <Radio value={daiContractAddress}>Dai</Radio>
+                                    <Radio value={usdcContractAddress}>USDC</Radio>
+                                    <Radio value={tetherContractAddress}>Tether</Radio>
+                                </RadioGroupControl>
                                 <FormControl isInvalid={formik.errors.meetupDate && formik.touched.meetupDate}>
                                     <FormLabel>Meetup Date</FormLabel>
                                     <DatePickerField name='meetupDate'/>

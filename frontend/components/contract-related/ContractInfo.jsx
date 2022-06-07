@@ -3,10 +3,12 @@ import { useEffect, useState } from 'react';
 
 
 export default function ContractInfo({didApprove, didDeposit, didContest, didClaim, contractState,
-     contractAddress, depositAmount, agreedDate, buyer, seller, newlyCreated}) {
+     contractAddress, depositAmount, tokenAddress, agreedDate, buyer, seller, newlyCreated,
+    daiContractAddress, usdcContractAddress, tetherContractAddress}) {
     const [amountReadable, setAmountReadable] = useState();
     const [dateReadable, setDateReadable] = useState();
     const [status, setStatus] = useState();
+    const [chosenToken, setChosenToken] = useState();
 
     useEffect(() => {
         if (depositAmount) {
@@ -19,7 +21,6 @@ export default function ContractInfo({didApprove, didDeposit, didContest, didCla
             setDateReadable(agreedDate.toDateString())
         }
     },[agreedDate])
-
 
     const getStatus = () => {
         if (!didApprove && !didDeposit && contractState=='Created') {
@@ -35,9 +36,23 @@ export default function ContractInfo({didApprove, didDeposit, didContest, didCla
         }
     }
 
+    const getChosenToken = () => {
+        if (tokenAddress===daiContractAddress) {
+            setChosenToken('Dai')
+        } else if (tokenAddress===usdcContractAddress) {
+            setChosenToken('USDC')
+        } else if (tokenAddress===tetherContractAddress) {
+            setChosenToken('Tether')
+        }
+    }
+
     useEffect(() => {
         getStatus();
     },[didApprove, didDeposit, didContest, didClaim, contractState])
+
+    useEffect(() => {
+        getChosenToken();
+    },[chosenToken])
 
     return (
         <Box borderWidth='0.2rem' borderRadius='lg' p='1rem' m='1rem' borderColor='black'>
@@ -48,7 +63,7 @@ export default function ContractInfo({didApprove, didDeposit, didContest, didCla
             {newlyCreated && <br/>}
             <Text>Contract Status: {status}</Text>
             <Text>Contract Address: {contractAddress}</Text>
-            <Text>Deposit Amount: {amountReadable}</Text>
+            <Text>Deposit Amount: {amountReadable} {chosenToken}</Text>
             <Text>Agreed Date: {dateReadable}</Text>
             {contractState=='Locked' && <br/>}
             {contractState=='Locked' && <Text>

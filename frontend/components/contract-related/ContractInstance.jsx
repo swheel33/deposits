@@ -4,7 +4,9 @@ import ContractInteraction from './ContractInteraction'
 import ContractInfo from './ContractInfo';
 
 
-export default function ContractInstance({tokenContract, depositContract, depositContractAddress, accounts, newlyCreated}) {
+export default function ContractInstance({tokenContract, depositContract, depositContractAddress,
+     accounts, newlyCreated, setChosenTokenAddress, chosenTokenAddress, daiContractAddress,
+    usdcContractAddress, tetherContractAddress}) {
     //State variable declaration to track progress
     const [didDeposit, setDidDeposit] = useState(false);
     const [didApprove, setDidApprove] = useState(false);
@@ -95,7 +97,7 @@ export default function ContractInstance({tokenContract, depositContract, deposi
             const depositAmount = await depositContract.getDepositValue();
             setDepositAmount(depositAmount);
         } catch (error) {
-            
+            console.log(error);
         }
     }
 
@@ -104,25 +106,34 @@ export default function ContractInstance({tokenContract, depositContract, deposi
             const buyer = await depositContract.getBuyer();
             setBuyer(buyer);
         } catch (error) {
-            console.log(error)
+            console.log(error);
         }
     }
 
     const getSeller = async () => {
         try {
             const seller = await depositContract.getSeller();
-            setSeller(seller)
+            setSeller(seller);
         } catch (error) {
-            console.log(error)
+            console.log(error);
         }
     }
 
     const getContractState = async () => {
         try {
             const contractState = await depositContract.getCurrentState();
-            setContractState(contractState)
+            setContractState(contractState);
         } catch (error) {
-            
+            console.log(error);
+        }
+    }
+
+    const getTokenAddress = async () => {
+        try {
+            const tokenAddress = await depositContract.getTokenAddress();
+            setChosenTokenAddress(tokenAddress);
+        } catch (error) {
+            console.log(error);
         }
     }
 
@@ -177,6 +188,7 @@ export default function ContractInstance({tokenContract, depositContract, deposi
         getDepositAmount();
         getAgreedDate();
         getDeadline();
+        getTokenAddress();
     },[])
 
     /* Not only on mount cause it's possible that immediately after deposit you could contest if the agreed upon date is today.
@@ -204,6 +216,10 @@ export default function ContractInstance({tokenContract, depositContract, deposi
                                     contractState={contractState}
                                     contractAddress={depositContractAddress}
                                     depositAmount={depositAmount}
+                                    tokenAddress={chosenTokenAddress}
+                                    daiContractAddress={daiContractAddress}
+                                    usdcContractAddress={usdcContractAddress}
+                                    tetherContractAddress={tetherContractAddress}
                                     agreedDate={agreedDate}
                                     buyer={buyer}
                                     seller={seller}
