@@ -1,18 +1,25 @@
-import { Box, Flex, Button, Grid, GridItem, Text } from '@chakra-ui/react'
-import { useBoolean } from '@chakra-ui/react'
+import { Box, Flex, Button, Center, Text } from '@chakra-ui/react'
 import ExistingContractForm from './forms/ExistingContractForm';
 import Navbar from './Navbar'
+import Footer from './Footer'
 import NewContractForm from './forms/NewContractForm';
 import { useEffect, useState } from 'react';
 import { ethers } from "ethers"
 import DaiAbi from '../abi/DaiAbi.json'
 import DepositFactoryABI from '../contracts/DepositFactory.json'
-import ContractInstance from './contract-interaction/ContractInstance'
+import ContractInstance from './contract-related/ContractInstance'
 import DepositABI from '../contracts/Deposit.json';
+import { useWeb3React } from '@web3-react/core';
 
-export default function DApp({chainId, accounts, error, isActivating, isActive, provider, ENSNames}) {
+export default function DApp() {
+    const { chainId, accounts, isActive, account, provider, ENSNames } = useWeb3React();
+    
     //Correct Chain check
-    const isCorrectChain = chainId === 4;
+    const [isCorrectChain, setIsCorrectChain] = useState(false);
+
+    useEffect(() => {
+        setIsCorrectChain(chainId === 4)
+    },[chainId])
 
     //Defining address of the contract that will get created when starting the deposit sequence
     const [newContractAddress, setNewContractAddress] = useState('');
@@ -23,13 +30,16 @@ export default function DApp({chainId, accounts, error, isActivating, isActive, 
 
     //ethers signer and contracts
     const [signer, setSigner] = useState();
+    
     const [daiContract, setDaiContract] = useState();
     const [depositFactoryContract, setDepositFactoryContract] = useState();
     const [newDepositContract, setNewDepositContract] = useState();
 
 
-    const [isNewContract, setIsNewContract] = useBoolean();
-    const [isExistingContract, setIsExistingContract] = useBoolean()
+    const [isNewContract, setIsNewContract] = useState(false);
+    const [isExistingContract, setIsExistingContract] = useState(false)
+    const [newlyCreated, setNewlyCreated] = useState(false);
+
 
     useEffect(() => {
         if(provider) {
@@ -50,33 +60,44 @@ export default function DApp({chainId, accounts, error, isActivating, isActive, 
         }
     }, [newContractAddress])
 
-    
 
     return (
         <Box h='100vh'>
-            <Navbar accounts={accounts} isActive={isActive} ENSNames={ENSNames} isCorrectChain={isCorrectChain}/>
-            {isCorrectChain && <Flex h='80%' align='center' direction='column'>
+            <Navbar accounts={accounts} isActive={isActive} isCorrectChain={isCorrectChain}/>
+            {!isActive && <Center><Text fontSize='2xl'>Please connect your wallet to access this DApp</Text></Center>}
+            {(isCorrectChain && isActive) && <Flex h='80%' align='center' direction='column'>
                 {(!isNewContract && !isExistingContract) && <Flex>
                     <Text>Welcome to SafeDeposits! <br/> If you've been sent here by
-                        a seller, after connecting to your wallet, click the "Use Existing Deposit Contract" button and enter the contract
+                        a seller click the "Use Existing Deposit Contract" button and enter the contract
                         address you were given.
                     </Text>
                 </Flex> }
                 {(isActive && !isNewContract && !isExistingContract) && <Flex h='20%' w='100%' align='center' justify='space-evenly'>
-                    <Button onClick={setIsNewContract.on}>Create New Deposit Contract</Button>
-                    <Button onClick={setIsExistingContract.on}>Use Existing Deposit Contract</Button>
+                    <Button onClick={() => setIsNewContract(true)}>Create New Deposit Contract</Button>
+                    <Button onClick={() => setIsExistingContract(true)}>Use Existing Deposit Contract</Button>
                 </Flex>}
-                {(!newContractAddress && isNewContract) && <NewContractForm daiContractAddress={daiContractAddress} 
-                                                    depositFactoryContract={depositFactoryContract} 
-                                                    accounts={accounts} 
-                                                    provider={provider}
-                                                    setNewContractAddress={setNewContractAddress}/>}
-                {(!newContractAddress && isExistingContract) && <ExistingContractForm depositFactoryContract={depositFactoryContract} setNewContractAddress={setNewContractAddress}/>}
+                {(!newContractAddress && isNewContract) && <NewContractForm 
+                                                                daiContractAddress={daiContractAddress} 
+                                                                depositFactoryContract={depositFactoryContract} 
+                                                                accounts={accounts} 
+                                                                provider={provider}
+                                                                setNewContractAddress={setNewContractAddress}
+                                                                setIsExistingContract={setIsExistingContract}
+                                                                setIsNewContract={setIsNewContract}
+                                                                setNewlyCreated={setNewlyCreated}/>}
+                {(!newContractAddress && isExistingContract) && <ExistingContractForm 
+                                                                    depositFactoryContract={depositFactoryContract} 
+                                                                    setNewContractAddress={setNewContractAddress}
+                                                                    setIsExistingContract={setIsExistingContract}
+                                                                    setIsNewContract={setIsNewContract}
+                                                                    />}
                 {newDepositContract && <ContractInstance depositContract={newDepositContract}
                                                         tokenContract={daiContract} 
                                                         depositContractAddress={newContractAddress}
-                                                        accounts={accounts}/>}
+                                                        accounts={accounts}
+                                                        newlyCreated={newlyCreated}/>}
             </Flex>}
+            <Footer />
         </Box>
         
     )
