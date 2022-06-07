@@ -12,7 +12,7 @@ import DepositABI from '../contracts/Deposit.json';
 import { useWeb3React } from '@web3-react/core';
 
 export default function DApp() {
-    const { chainId, accounts, isActive, account, provider, ENSNames } = useWeb3React();
+    const { chainId, accounts, isActive, account, provider, ENSNames, connector } = useWeb3React();
     
     //Correct Chain check
     const [isCorrectChain, setIsCorrectChain] = useState(false);
@@ -63,7 +63,7 @@ export default function DApp() {
 
     return (
         <Box h='100vh'>
-            <Navbar accounts={accounts} isActive={isActive} isCorrectChain={isCorrectChain}/>
+            <Navbar accounts={accounts} isActive={isActive} isCorrectChain={isCorrectChain} connector={connector}/>
             {!isActive && <Center><Text fontSize='2xl'>Please connect your wallet to access this DApp</Text></Center>}
             {(isCorrectChain && isActive) && <Flex h='80%' align='center' direction='column'>
                 {(!isNewContract && !isExistingContract) && <Flex>
