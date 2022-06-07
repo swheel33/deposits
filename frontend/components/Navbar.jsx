@@ -4,9 +4,10 @@ import { BsSafe2 } from 'react-icons/bs'
 import truncateEthAddress from 'truncate-eth-address'
 
 export default function Navbar({accounts, isCorrectChain, isActive, connector}) {
-    /*Brief aside on wallet connections. Metamask deactivating doesn't do anything, you have to do it through the metamask ui,
-    and Coinbase Wallet has no way to disconnect from the UI as far as I can tell so I built a backend disconnect that will show up
-    specifially for that. 
+    /*Brief aside on wallet connections. Metamask deactivating doesn't do anything, you have to do it through the metamask ui.
+    Some websites have the disconnect buttons for Metamask but honestly I just think it's confusing since its a 
+    button that doesn't actually do anything. However for Coinbase Wallet there is no way to disconnect from the UI as far 
+    as I can tell (do better Coinbase) so there needs to be a disconnect button for coinbase
     */
     return (
             <Flex justify='space-between' p='1rem 2rem'>
