@@ -107,7 +107,7 @@ export default function DApp() {
                             isCorrectChain={isCorrectChain}
                             />}
                 </Box>
-                {(!isActive && !isAbout) && <Center><Text fontSize='2xl'>Please connect your wallet to access this DApp</Text></Center>}
+                {(!isActive && !isAbout) && <Center><Text fontSize={['xl','3xl']}>Please connect your wallet to access this DApp</Text></Center>}
                 {(isCorrectChain && isActive && !isAbout) && <Flex h='80%' align='center' direction='column'>
                     {(!isNewContract && !isExistingContract &&!isAbout) && <Flex>
                         <Text>Welcome to SafeDeposits! <br/> If you've been sent here by

@@ -53,12 +53,12 @@ export default function About({setIsAbout, daiTokenContract, USDCTokenContract, 
     }
     
     return (
-        <Flex pl={['1rem', '2rem']} w='100%' direction='column' >
+        <Flex p={['0 1rem', '0 2rem']} w='100%' direction='column' >
             <Flex align='center' pb={['1rem', '2rem']} >
-                <Button onClick={() => setIsAbout(false)} size={['xs', 'lg']}>Back</Button>
-                <Center w={['65%', '85%']}><Text fontSize={['lg', '2xl']} fontWeight='bold'>About</Text></Center>
+                <Button onClick={() => setIsAbout(false)} size={['sm', 'lg']}>Back</Button>
+                <Center w={['65%', '85%']}><Text fontSize={['xl', '4xl']} fontWeight='bold'>About</Text></Center>
             </Flex>
-            <Flex justify='center' w='100%' fontSize={['xs', 'md']}>
+            <Flex justify='center' w='100%' fontSize={['sm', 'lg']}>
                 <VStack w={{lg: '80%', sm: '100%'}}>
                     
                     <Text >
@@ -108,7 +108,7 @@ export default function About({setIsAbout, daiTokenContract, USDCTokenContract, 
                             </ListItem>
                             <br />
                         </OrderedList>
-                        <Text fontSize={['lg', '2xl']} fontWeight='bold'>Contesting Game Theory</Text>
+                        <Text fontSize={['xl', '3xl']} fontWeight='bold'>Contesting Game Theory</Text>
                         <Text>
                             The contesting process can only by done during the agreed upon date and only by the Buyer. 
                             If a Buyer contests the deposit, the Buyer is returned the funds no questions asked. This provides a safeguard against
@@ -121,7 +121,7 @@ export default function About({setIsAbout, daiTokenContract, USDCTokenContract, 
                             with the sale.
                             <br /> <br />
                         </Text>
-                        <Text fontSize={['lg', '2xl']} fontWeight='bold'>App Notes</Text>
+                        <Text fontSize={['xl', '3xl']} fontWeight='bold'>App Notes</Text>
                         <Text>
                             First of all if you've made it through the wall of text, bravo. Now since this app is just a portfolio project (code availible <span></span>
                              <Link isExternal color='blue' href='https://github.com/swheel33/deposits'>here</Link> and from the github logo in the footer) and not meant for production, this app is deployed on the Rinkeby Testnet. Verified contract
