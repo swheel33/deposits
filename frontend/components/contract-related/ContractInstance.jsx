@@ -31,7 +31,7 @@ export default function ContractInstance({tokenContract, depositContract, deposi
             const approvals = event.map(event => event.args.spender)
             setDidApprove(approvals.includes(depositContractAddress))
         } catch (error) {
-            console.log(error)
+            console.log('This account has not yet approved')
         }
     }
 
@@ -42,7 +42,7 @@ export default function ContractInstance({tokenContract, depositContract, deposi
             const deposits = event.map(event => event.args.to)
             setDidDeposit(deposits.includes(depositContractAddress))
         } catch (error) {
-            console.log(error)
+            console.log('This accounts has not yet deposited')
         }
     } 
     
