@@ -3,12 +3,11 @@ import { useEffect, useState } from 'react';
 
 
 export default function ContractInfo({didApprove, didDeposit, didContest, didClaim, contractState,
-     contractAddress, depositAmount, tokenAddress, agreedDate, buyer, seller, newlyCreated,
-    daiContractAddress, usdcContractAddress, tetherContractAddress}) {
+     contractAddress, depositAmount, agreedDate, buyer, seller, newlyCreated, chosenToken
+    }) {
     const [amountReadable, setAmountReadable] = useState();
     const [dateReadable, setDateReadable] = useState();
     const [status, setStatus] = useState();
-    const [chosenToken, setChosenToken] = useState();
 
     useEffect(() => {
         if (depositAmount) {
@@ -36,23 +35,11 @@ export default function ContractInfo({didApprove, didDeposit, didContest, didCla
         }
     }
 
-    const getChosenToken = () => {
-        if (tokenAddress===daiContractAddress) {
-            setChosenToken('Dai')
-        } else if (tokenAddress===usdcContractAddress) {
-            setChosenToken('USDC')
-        } else if (tokenAddress===tetherContractAddress) {
-            setChosenToken('Tether')
-        }
-    }
 
     useEffect(() => {
         getStatus();
     },[didApprove, didDeposit, didContest, didClaim, contractState])
 
-    useEffect(() => {
-        getChosenToken();
-    },[chosenToken])
 
     return (
         <Box borderWidth='0.2rem' borderRadius='lg' p='1rem' m='1rem' borderColor='black'>

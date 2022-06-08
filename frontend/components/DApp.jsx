@@ -12,9 +12,13 @@ import DepositFactoryABI from '../contracts/DepositFactory.json'
 import ContractInstance from './contract-related/ContractInstance'
 import DepositABI from '../contracts/Deposit.json';
 import { useWeb3React } from '@web3-react/core';
+import About from './About'
 
 export default function DApp() {
     const { chainId, accounts, isActive, account, provider, ENSNames, connector } = useWeb3React();
+    
+    //About section handling
+    const [isAbout, setIsAbout] = useState();
     
     //Correct Chain check
     const [isCorrectChain, setIsCorrectChain] = useState(false);
@@ -30,11 +34,10 @@ export default function DApp() {
     const daiContractAddress = '0x5eD8BD53B0c3fa3dEaBd345430B1A3a6A4e8BD7C';
     const usdcContractAddress = '0xeb8f08a975Ab53E34D8a0330E0D34de942C95926';
     const tetherContractAddress = '0xc66227E44bf1E6F043919A65707b826e3E9f1132';
-    const [chosenTokenAddress, setChosenTokenAddress] = useState();
-    const [chosenTokenABI, setChosenTokenABI] = useState();
+    const [chosenTokenContract, setChosenTokenContract] = useState();
+    const [chosenToken, setChosenToken] = useState();
   
     //Contract Addresses
-    
     const depositFactoryAddress = '0xAEA66E013CDA1e8675eA757cD9ADDA4b466578Dd';
 
     //State variables for page navigation
@@ -44,7 +47,6 @@ export default function DApp() {
     
     //ethers signer and contracts
     const [signer, setSigner] = useState();
-    const [tokenContract, setTokenContract] = useState();
     const [depositFactoryContract, setDepositFactoryContract] = useState();
     const [newDepositContract, setNewDepositContract] = useState();
 
@@ -54,52 +56,67 @@ export default function DApp() {
         }
     }, [provider])
 
+    const [daiTokenContract, setDaiTokenContract] = useState();
+    const [USDCTokenContract, setUSDCTokenContract] = useState();
+    const [tetherTokenContract, setTetherTokenContract] = useState();
+    
     useEffect(() => {
         if(signer) {
             setDepositFactoryContract(new ethers.Contract(depositFactoryAddress, DepositFactoryABI.abi, signer));
+            setDaiTokenContract(new ethers.Contract(daiContractAddress, DaiAbi, signer));
+            setUSDCTokenContract(new ethers.Contract(usdcContractAddress, USDCAbi, signer));
+            setTetherTokenContract(new ethers.Contract(tetherContractAddress, TetherAbi, signer));
         }
     }, [signer])
 
     useEffect(() => {
-        if (chosenTokenAddress===daiContractAddress) {
-            setChosenTokenABI(DaiAbi)
-        } else if (chosenTokenAddress===usdcContractAddress) {
-            setChosenTokenABI(USDCAbi)
-        } else if (chosenTokenAddress===tetherContractAddress) {
-            setChosenTokenABI(TetherAbi)
+        if (chosenToken === 'Dai') {
+            setChosenTokenContract(daiTokenContract)
+        } else if (chosenToken === 'USDC') {
+            setChosenTokenContract(USDCTokenContract)
+        } else if (chosenToken === 'Tether') {
+            setChosenTokenContract(tetherTokenContract)
         }
-    }, [chosenTokenAddress])
-    
-    useEffect(() => {
-        if(signer && chosenTokenAddress && chosenTokenABI) {
-            setTokenContract(new ethers.Contract(chosenTokenAddress, chosenTokenABI, signer));
-        }
-    },[chosenTokenABI])
+    }, [chosenToken])
 
     useEffect(() => {
         if(newContractAddress) {
             setNewDepositContract(new ethers.Contract(newContractAddress, DepositABI.abi, signer))
         }
     }, [newContractAddress])
+    
+    
 
 
     return (
         <Box h='100vh'>
-            <Navbar accounts={accounts} isActive={isActive} isCorrectChain={isCorrectChain} connector={connector}/>
-            {!isActive && <Center><Text fontSize='2xl'>Please connect your wallet to access this DApp</Text></Center>}
-            {(isCorrectChain && isActive) && <Flex h='80%' align='center' direction='column'>
-                {(!isNewContract && !isExistingContract) && <Flex>
+            <Navbar 
+                accounts={accounts} 
+                isActive={isActive} 
+                isCorrectChain={isCorrectChain} 
+                connector={connector}
+                setIsAbout={setIsAbout}/>
+            {isAbout && <About 
+                        setIsAbout={setIsAbout}
+                        daiTokenContract={daiTokenContract}
+                        USDCTokenContract={USDCTokenContract}
+                        tetherTokenContract={tetherTokenContract}
+                        accounts={accounts}
+                        />}
+            {(!isActive && !isAbout) && <Center><Text fontSize='2xl'>Please connect your wallet to access this DApp</Text></Center>}
+            {(isCorrectChain && isActive && !isAbout) && <Flex h='80%' align='center' direction='column'>
+                {(!isNewContract && !isExistingContract &&!isAbout) && <Flex>
                     <Text>Welcome to SafeDeposits! <br/> If you've been sent here by
                         a seller click the "Use Existing Deposit Contract" button and enter the contract
                         address you were given.
                     </Text>
                 </Flex> }
-                {(isActive && !isNewContract && !isExistingContract) && <Flex h='20%' w='100%' align='center' justify='space-evenly'>
+                {(isActive && !isNewContract && !isExistingContract && !isAbout) && <Flex h='20%' w='100%' align='center' justify='space-evenly'>
                     <Button onClick={() => setIsNewContract(true)}>Create New Deposit Contract</Button>
                     <Button onClick={() => setIsExistingContract(true)}>Use Existing Deposit Contract</Button>
                 </Flex>}
-                {(!newContractAddress && isNewContract) && <NewContractForm 
-                                                                setChosenTokenAddress={setChosenTokenAddress}
+                {(!newContractAddress && isNewContract && !isAbout) && <NewContractForm 
+                                                                setChosenToken={setChosenToken}
                                                                 daiContractAddress={daiContractAddress}
                                                                 usdcContractAddress={usdcContractAddress}
                                                                 tetherContractAddress={tetherContractAddress}
@@ -110,23 +127,23 @@ export default function DApp() {
                                                                 setIsExistingContract={setIsExistingContract}
                                                                 setIsNewContract={setIsNewContract}
                                                                 setNewlyCreated={setNewlyCreated}/>}
-                {(!newContractAddress && isExistingContract) && <ExistingContractForm 
+                {(!newContractAddress && isExistingContract && !isAbout) && <ExistingContractForm 
                                                                     depositFactoryContract={depositFactoryContract} 
                                                                     setNewContractAddress={setNewContractAddress}
                                                                     setIsExistingContract={setIsExistingContract}
                                                                     setIsNewContract={setIsNewContract}
                                                                     />}
-                {newDepositContract && <ContractInstance depositContract={newDepositContract}
-                                                        tokenContract={tokenContract}
+                {(newDepositContract && !isAbout) && <ContractInstance depositContract={newDepositContract}
+                                                        tokenContract={chosenTokenContract}
                                                         daiContractAddress={daiContractAddress}
                                                         usdcContractAddress={usdcContractAddress}
                                                         tetherContractAddress={tetherContractAddress}
-                                                        chosenTokenAddress={chosenTokenAddress}
-                                                        setChosenTokenAddress={setChosenTokenAddress} 
+                                                        chosenToken={chosenToken}
+                                                        setChosenToken={setChosenToken}
                                                         depositContractAddress={newContractAddress}
                                                         accounts={accounts}
                                                         newlyCreated={newlyCreated}/>}
-            </Flex>}
+            </Flex>} 
             <Footer />
         </Box>
         

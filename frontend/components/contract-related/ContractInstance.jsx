@@ -5,8 +5,8 @@ import ContractInfo from './ContractInfo';
 
 
 export default function ContractInstance({tokenContract, depositContract, depositContractAddress,
-     accounts, newlyCreated, setChosenTokenAddress, chosenTokenAddress, daiContractAddress,
-    usdcContractAddress, tetherContractAddress}) {
+     accounts, newlyCreated, daiContractAddress,
+    usdcContractAddress, tetherContractAddress, chosenToken, setChosenToken}) {
     //State variable declaration to track progress
     const [didDeposit, setDidDeposit] = useState(false);
     const [didApprove, setDidApprove] = useState(false);
@@ -128,10 +128,16 @@ export default function ContractInstance({tokenContract, depositContract, deposi
         }
     }
 
-    const getTokenAddress = async () => {
+    const getChosenToken = async () => {
         try {
             const tokenAddress = await depositContract.getTokenAddress();
-            setChosenTokenAddress(tokenAddress);
+            if (tokenAddress === daiContractAddress) {
+                setChosenToken('Dai');
+            } else if (tokenAddress === usdcContractAddress) {
+                setChosenToken('USDC');
+            } else if (tokenAddress === tetherContractAddress) {
+                setChosenToken('Tether');
+            }
         } catch (error) {
             console.log(error);
         }
@@ -161,7 +167,7 @@ export default function ContractInstance({tokenContract, depositContract, deposi
 
     useEffect(() => {
         getApprovalStatus();
-    },[didApprove])
+    },[didApprove, accounts])
 
     useEffect(() => {
         getDepositStatus();
@@ -188,7 +194,7 @@ export default function ContractInstance({tokenContract, depositContract, deposi
         getDepositAmount();
         getAgreedDate();
         getDeadline();
-        getTokenAddress();
+        getChosenToken();
     },[])
 
     /* Not only on mount cause it's possible that immediately after deposit you could contest if the agreed upon date is today.
@@ -216,7 +222,7 @@ export default function ContractInstance({tokenContract, depositContract, deposi
                                     contractState={contractState}
                                     contractAddress={depositContractAddress}
                                     depositAmount={depositAmount}
-                                    tokenAddress={chosenTokenAddress}
+                                    chosenToken={chosenToken}
                                     daiContractAddress={daiContractAddress}
                                     usdcContractAddress={usdcContractAddress}
                                     tetherContractAddress={tetherContractAddress}

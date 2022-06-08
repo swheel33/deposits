@@ -8,7 +8,7 @@ import BackButton from "./BackButton";
 
 
 export default function NewContractForm({depositFactoryContract, accounts, 
-    setNewContractAddress, setIsNewContract, setIsExistingContract, setNewlyCreated, setChosenTokenAddress,
+    setNewContractAddress, setIsNewContract, setIsExistingContract, setNewlyCreated, setChosenToken,
     daiContractAddress, usdcContractAddress, tetherContractAddress}) {
     const today = new Date();
     let yesterday = new Date();
@@ -23,7 +23,7 @@ export default function NewContractForm({depositFactoryContract, accounts,
             const receipt = await tx.wait();
             const emittedAddress = receipt.logs[0].address;
             setNewlyCreated(true);
-            setChosenTokenAddress(chosenTokenAddress);
+            setChosenToken(determineChosenToken(chosenTokenAddress));
             setNewContractAddress(emittedAddress);
             console.log(`Contract creation successful! Created contract address is: ${emittedAddress}. Deposit amount is ${approvalAmount} and the agreed date is ${meetupDate}.`);
         } catch (error) {
@@ -32,11 +32,23 @@ export default function NewContractForm({depositFactoryContract, accounts,
         }
     }
 
+    const determineChosenToken = chosenTokenAddress => {
+        if (chosenTokenAddress === daiContractAddress) {
+            return 'Dai';
+        } else if (chosenTokenAddress === usdcContractAddress) {
+            return 'USDC';
+        } else if (chosenTokenAddress === tetherContractAddress) {
+            return 'Tether'
+        } else {
+            return null
+        }
+    }
+
     return (
         <Flex>
                 <BackButton setIsExistingContract={setIsExistingContract} setIsNewContract={setIsNewContract}/>
                 <Formik
-                    initialValues={{amount: 0, meetupDate: today, chosenToken: 'dai'}}
+                    initialValues={{amount: 0, meetupDate: today, chosenToken: daiContractAddress}}
                     validationSchema={Yup.object({
                         amount: Yup.number()
                             .required('Required')
