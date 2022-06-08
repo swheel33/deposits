@@ -7,6 +7,6 @@ export default function BackButton({setIsExistingContract, setIsNewContract}) {
     }
     
     return (
-        <Button onClick={handleClick} pos='fixed' left='2rem'>Back</Button>
+        <Button onClick={handleClick} pos='fixed' left={['0.5rem','2rem']} size={['sm', 'lg']}>Back</Button>
     )
 }

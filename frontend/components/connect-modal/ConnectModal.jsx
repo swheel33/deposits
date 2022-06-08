@@ -19,7 +19,7 @@ export default function ConnectModal() {
     const { isOpen, onOpen, onClose } = useDisclosure()
     return (
        <div>
-            <Button onClick={onOpen}>Connect Wallet</Button>
+            <Button onClick={onOpen} size={['xs', 'lg']}>Connect Wallet</Button>
             <Modal isOpen={isOpen} onClose={onClose} size='xs'>
                 <ModalOverlay />
                 <ModalContent>

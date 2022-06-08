@@ -1,4 +1,4 @@
-import { Button, Box, Flex, Heading, ListItem, OrderedList, Text, VStack, HStack, Link } from "@chakra-ui/react";
+import { Button, Box, Flex, Heading, ListItem, OrderedList, Text, VStack, HStack, Link, Center } from "@chakra-ui/react";
 import { useState } from "react";
 import { BigNumber } from "ethers";
 
@@ -53,12 +53,15 @@ export default function About({setIsAbout, daiTokenContract, USDCTokenContract, 
     }
     
     return (
-        <Flex pl='2rem' w='100%'>
-            <Button onClick={() => setIsAbout(false)}>Back</Button>
-            <Flex justify='center' w='90%'>
-                <VStack w='80%'>
-                    <Heading>About</Heading>
-                    <Text>
+        <Flex pl={['1rem', '2rem']} w='100%' direction='column' >
+            <Flex align='center' pb={['1rem', '2rem']} >
+                <Button onClick={() => setIsAbout(false)} size={['xs', 'lg']}>Back</Button>
+                <Center w={['65%', '85%']}><Text fontSize={['lg', '2xl']} fontWeight='bold'>About</Text></Center>
+            </Flex>
+            <Flex justify='center' w='100%' fontSize={['xs', 'md']}>
+                <VStack w={{lg: '80%', sm: '100%'}}>
+                    
+                    <Text >
                         Welcome to my SafeDeposit App! This app is built for for purpose of handling Facebook Marketplace deposits.
                         A usually schemy environment fraught with fraud, SafeDeposits attempts to reign in part of that by handling deposits
                         for theoretically sold items. "Theoretically" sold because anyone who's sold items on an open marketplace (like Facebook Marketplace 
@@ -72,7 +75,7 @@ export default function About({setIsAbout, daiTokenContract, USDCTokenContract, 
                     </Text>
                     <Box w='100%'>
                         <OrderedList>
-                            <ListItem>
+                            <ListItem >
                                 The Seller navigates to this website and clicks the Create New Deposit Contract button, then 
                                 selects the amount he/she would like the buyer to deposit, the type of coin the deposit
                                 should be in, and the agreed upon date for the seller and buyer to meetup to complete the 
@@ -105,7 +108,7 @@ export default function About({setIsAbout, daiTokenContract, USDCTokenContract, 
                             </ListItem>
                             <br />
                         </OrderedList>
-                        <Text fontSize='2xl' fontWeight='bold'>Contesting Game Theory</Text>
+                        <Text fontSize={['lg', '2xl']} fontWeight='bold'>Contesting Game Theory</Text>
                         <Text>
                             The contesting process can only by done during the agreed upon date and only by the Buyer. 
                             If a Buyer contests the deposit, the Buyer is returned the funds no questions asked. This provides a safeguard against
@@ -118,7 +121,7 @@ export default function About({setIsAbout, daiTokenContract, USDCTokenContract, 
                             with the sale.
                             <br /> <br />
                         </Text>
-                        <Text fontSize='2xl' fontWeight='bold'>App Notes</Text>
+                        <Text fontSize={['lg', '2xl']} fontWeight='bold'>App Notes</Text>
                         <Text>
                             First of all if you've made it through the wall of text, bravo. Now since this app is just a portfolio project (code availible <span></span>
                              <Link isExternal color='blue' href='https://github.com/swheel33/deposits'>here</Link> and from the github logo in the footer) and not meant for production, this app is deployed on the Rinkeby Testnet. Verified contract
@@ -137,7 +140,8 @@ export default function About({setIsAbout, daiTokenContract, USDCTokenContract, 
                                                 <Button onClick={tetherMint} isLoading={loadingTether} loadingText='Minting Tether'>Mint 1000 Tether</Button>
                                             </HStack>
                                         </Flex>}
-                            
+                                        {/*My css needs work I know*/}
+                                        <br /> <br /><br /> <br />
                         </Flex>
                     </Box>
                 </VStack>

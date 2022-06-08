@@ -89,62 +89,66 @@ export default function DApp() {
 
 
     return (
-        <Box h='100vh'>
+        <Box h='100vh' w='100vw'>
             <Navbar 
                 accounts={accounts} 
                 isActive={isActive} 
                 isCorrectChain={isCorrectChain} 
                 connector={connector}
                 setIsAbout={setIsAbout}/>
-            {isAbout && <About 
-                        setIsAbout={setIsAbout}
-                        daiTokenContract={daiTokenContract}
-                        USDCTokenContract={USDCTokenContract}
-                        tetherTokenContract={tetherTokenContract}
-                        accounts={accounts}
-                        isCorrectChain={isCorrectChain}
-                        />}
-            {(!isActive && !isAbout) && <Center><Text fontSize='2xl'>Please connect your wallet to access this DApp</Text></Center>}
-            {(isCorrectChain && isActive && !isAbout) && <Flex h='80%' align='center' direction='column'>
-                {(!isNewContract && !isExistingContract &&!isAbout) && <Flex>
-                    <Text>Welcome to SafeDeposits! <br/> If you've been sent here by
-                        a seller click the "Use Existing Deposit Contract" button and enter the contract
-                        address you were given.
-                    </Text>
-                </Flex> }
-                {(isActive && !isNewContract && !isExistingContract && !isAbout) && <Flex h='20%' w='100%' align='center' justify='space-evenly'>
-                    <Button onClick={() => setIsNewContract(true)}>Create New Deposit Contract</Button>
-                    <Button onClick={() => setIsExistingContract(true)}>Use Existing Deposit Contract</Button>
-                </Flex>}
-                {(!newContractAddress && isNewContract && !isAbout) && <NewContractForm 
-                                                                setChosenToken={setChosenToken}
-                                                                daiContractAddress={daiContractAddress}
-                                                                usdcContractAddress={usdcContractAddress}
-                                                                tetherContractAddress={tetherContractAddress}
-                                                                depositFactoryContract={depositFactoryContract} 
-                                                                accounts={accounts} 
-                                                                provider={provider}
-                                                                setNewContractAddress={setNewContractAddress}
-                                                                setIsExistingContract={setIsExistingContract}
-                                                                setIsNewContract={setIsNewContract}
-                                                                setNewlyCreated={setNewlyCreated}/>}
-                {(!newContractAddress && isExistingContract && !isAbout) && <ExistingContractForm 
+            <Box p='0 1rem' pos='relative' top={['5rem','8rem']}>
+                <Box h='200%'>
+                    {isAbout && <About 
+                            setIsAbout={setIsAbout}
+                            daiTokenContract={daiTokenContract}
+                            USDCTokenContract={USDCTokenContract}
+                            tetherTokenContract={tetherTokenContract}
+                            accounts={accounts}
+                            isCorrectChain={isCorrectChain}
+                            />}
+                </Box>
+                {(!isActive && !isAbout) && <Center><Text fontSize='2xl'>Please connect your wallet to access this DApp</Text></Center>}
+                {(isCorrectChain && isActive && !isAbout) && <Flex h='80%' align='center' direction='column'>
+                    {(!isNewContract && !isExistingContract &&!isAbout) && <Flex>
+                        <Text>Welcome to SafeDeposits! <br/> If you've been sent here by
+                            a seller click the "Use Existing Deposit Contract" button and enter the contract
+                            address you were given.
+                        </Text>
+                    </Flex> }
+                    {(isActive && !isNewContract && !isExistingContract && !isAbout) && <Flex h='20%' w='100%' align='center' justify='space-evenly' direction={['column', 'row']}>
+                        <Button onClick={() => setIsNewContract(true)} m='1rem'>Create New Deposit Contract</Button>
+                        <Button onClick={() => setIsExistingContract(true)}>Use Existing Deposit Contract</Button>
+                    </Flex>}
+                    {(!newContractAddress && isNewContract && !isAbout) && <NewContractForm 
+                                                                    setChosenToken={setChosenToken}
+                                                                    daiContractAddress={daiContractAddress}
+                                                                    usdcContractAddress={usdcContractAddress}
+                                                                    tetherContractAddress={tetherContractAddress}
                                                                     depositFactoryContract={depositFactoryContract} 
+                                                                    accounts={accounts} 
+                                                                    provider={provider}
                                                                     setNewContractAddress={setNewContractAddress}
                                                                     setIsExistingContract={setIsExistingContract}
                                                                     setIsNewContract={setIsNewContract}
-                                                                    />}
-                {(newDepositContract && !isAbout) && <ContractInstance depositContract={newDepositContract}
-                                                        tokenContract={chosenTokenContract}
-                                                        daiContractAddress={daiContractAddress}
-                                                        usdcContractAddress={usdcContractAddress}
-                                                        tetherContractAddress={tetherContractAddress}
-                                                        chosenToken={chosenToken}
-                                                        setChosenToken={setChosenToken}
-                                                        depositContractAddress={newContractAddress}
-                                                        accounts={accounts}
-                                                        newlyCreated={newlyCreated}/>}
-            </Flex>} 
+                                                                    setNewlyCreated={setNewlyCreated}/>}
+                    {(!newContractAddress && isExistingContract && !isAbout) && <ExistingContractForm 
+                                                                        depositFactoryContract={depositFactoryContract} 
+                                                                        setNewContractAddress={setNewContractAddress}
+                                                                        setIsExistingContract={setIsExistingContract}
+                                                                        setIsNewContract={setIsNewContract}
+                                                                        />}
+                    {(newDepositContract && !isAbout) && <ContractInstance depositContract={newDepositContract}
+                                                            tokenContract={chosenTokenContract}
+                                                            daiContractAddress={daiContractAddress}
+                                                            usdcContractAddress={usdcContractAddress}
+                                                            tetherContractAddress={tetherContractAddress}
+                                                            chosenToken={chosenToken}
+                                                            setChosenToken={setChosenToken}
+                                                            depositContractAddress={newContractAddress}
+                                                            accounts={accounts}
+                                                            newlyCreated={newlyCreated}/>}
+                </Flex>} 
+            </Box>
             <Footer />
         </Box>
         
