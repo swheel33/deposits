@@ -9,14 +9,17 @@ export default function About({setIsAbout, daiTokenContract, USDCTokenContract, 
     const [loadingTether, setLoadingTether] = useState(false);
     
     //Big number handling to get 1000 tokens for the Dai contract mint
-    let oneThousand = BigNumber.from("10");
-    oneThousand = oneThousand.pow(21);
+    let oneThousandDai = BigNumber.from("10");
+    oneThousandDai = oneThousandDai.pow(21);
+
+    let oneThousandOther = BigNumber.from('10');
+    oneThousandOther = oneThousandOther.pow(9);
 
 
     const daiMint = async () => {
         try {
             setLoadingDai(true)
-            const response = await daiTokenContract.mint(accounts[0], oneThousand);
+            const response = await daiTokenContract.mint(accounts[0], oneThousandDai);
             await response.wait();
             setLoadingDai(false)
         } catch (error) {
@@ -28,7 +31,7 @@ export default function About({setIsAbout, daiTokenContract, USDCTokenContract, 
     const usdcMint = async () => {
         try {
             setLoadingUSDC(true)
-            const response = await USDCTokenContract.mint(accounts[0], 1000);
+            const response = await USDCTokenContract.mint(accounts[0], oneThousandOther);
             await response.wait();
             setLoadingUSDC(false)
         } catch (error) {
@@ -40,7 +43,7 @@ export default function About({setIsAbout, daiTokenContract, USDCTokenContract, 
     const tetherMint = async () => {
         try {
             setLoadingTether(true)
-            const response = await tetherTokenContract.mint(accounts[0], 1000);
+            const response = await tetherTokenContract.mint(accounts[0], oneThousandOther);
             await response.wait();
             setLoadingTether(false)
         } catch (error) {
