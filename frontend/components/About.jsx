@@ -2,7 +2,7 @@ import { Button, Box, Flex, Heading, ListItem, OrderedList, Text, VStack, HStack
 import { useState } from "react";
 import { BigNumber } from "ethers";
 
-export default function About({setIsAbout, daiTokenContract, USDCTokenContract, tetherTokenContract, accounts}) {
+export default function About({setIsAbout, daiTokenContract, USDCTokenContract, tetherTokenContract, accounts, isCorrectChain}) {
     //I was having issues with the accounts not working being passed down 2 levels so the faucet stuff is here instead of a separate component
     const [loadingDai, setLoadingDai] = useState(false);
     const [loadingUSDC, setLoadingUSDC] = useState(false);
@@ -129,8 +129,8 @@ export default function About({setIsAbout, daiTokenContract, USDCTokenContract, 
                         </Text>
                         <Flex>
                             
-                            {!accounts && <Text fontWeight='bold'>Please connect wallet to use faucet</Text>}
-                            {accounts && <Flex>
+                            {(!accounts || !isCorrectChain) && <Text fontWeight='bold'>Please connect wallet to Rinkeby Testnet to use faucet</Text>}
+                            {(accounts && isCorrectChain) && <Flex>
                                             <HStack>
                                                 <Button onClick={daiMint} isLoading={loadingDai} loadingText='Minting Dai'>Mint 1000 Dai</Button>
                                                 <Button onClick={usdcMint} isLoading={loadingUSDC} loadingText='Minting USDC'>Mint 1000 USDC</Button>

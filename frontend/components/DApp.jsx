@@ -102,6 +102,7 @@ export default function DApp() {
                         USDCTokenContract={USDCTokenContract}
                         tetherTokenContract={tetherTokenContract}
                         accounts={accounts}
+                        isCorrectChain={isCorrectChain}
                         />}
             {(!isActive && !isAbout) && <Center><Text fontSize='2xl'>Please connect your wallet to access this DApp</Text></Center>}
             {(isCorrectChain && isActive && !isAbout) && <Flex h='80%' align='center' direction='column'>
