@@ -42,7 +42,7 @@ export default function ContractInstance({tokenContract, depositContract, deposi
             const deposits = event.map(event => event.args.to)
             setDidDeposit(deposits.includes(depositContractAddress))
         } catch (error) {
-            console.log('This accounts has not yet deposited')
+            console.log('This account has not yet deposited')
         }
     } 
     
@@ -167,11 +167,11 @@ export default function ContractInstance({tokenContract, depositContract, deposi
 
     useEffect(() => {
         getApprovalStatus();
-    },[didApprove, accounts])
+    },[didApprove, accounts, tokenContract])
 
     useEffect(() => {
         getDepositStatus();
-    },[didDeposit])
+    },[didDeposit, tokenContract])
 
     useEffect(() => {
         getContestStatus();
