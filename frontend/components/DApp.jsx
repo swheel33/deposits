@@ -13,10 +13,15 @@ import ContractInstance from './contract-related/ContractInstance'
 import DepositABI from '../contracts/Deposit.json';
 import { useWeb3React } from '@web3-react/core';
 import About from './About'
+import { useNetwork, useAccount, useEnsName } from 'wagmi';
 
 export default function DApp() {
-    const { chainId, accounts, isActive, account, provider, ENSNames, connector } = useWeb3React();
+    const { chainId, accounts, isActive, provider, ENSNames, connector } = useWeb3React();
     
+    const { activeChain } = useNetwork();
+    const { data: account } = useAccount();
+    //const { data: ensName } = useEnsName({ address: account.address });
+
     //About section handling
     const [isAbout, setIsAbout] = useState();
     
@@ -24,8 +29,11 @@ export default function DApp() {
     const [isCorrectChain, setIsCorrectChain] = useState(false);
 
     useEffect(() => {
-        setIsCorrectChain(chainId === 4)
-    },[chainId])
+        if (activeChain) {
+            setIsCorrectChain(activeChain.name === 'Rinkeby')
+        }
+    },[activeChain])
+    
 
     //Defining address of the contract that will get created when starting the deposit sequence
     const [newContractAddress, setNewContractAddress] = useState('');
@@ -91,10 +99,8 @@ export default function DApp() {
     return (
         <Box h='100vh' w='100vw'>
             <Navbar 
-                accounts={accounts} 
-                isActive={isActive} 
-                isCorrectChain={isCorrectChain} 
-                connector={connector}
+                isCorrectChain={isCorrectChain}
+                activeChain={activeChain} 
                 setIsAbout={setIsAbout}/>
             <Box p='0 1rem' pos='relative' top={['5rem','8rem']}>
                 <Box h='200%'>
@@ -107,15 +113,15 @@ export default function DApp() {
                             isCorrectChain={isCorrectChain}
                             />}
                 </Box>
-                {(!isActive && !isAbout) && <Center><Text fontSize={['xl','3xl']}>Please connect your wallet to access this DApp</Text></Center>}
-                {(isCorrectChain && isActive && !isAbout) && <Flex h='80%' align='center' direction='column'>
+                {(!activeChain && !isAbout) && <Center><Text fontSize={['xl','3xl']}>Please connect your wallet to access this DApp</Text></Center>}
+                {(activeChain && isCorrectChain && !isAbout) && <Flex h='80%' align='center' direction='column'>
                     {(!isNewContract && !isExistingContract &&!isAbout) && <Flex>
                         <Text>Welcome to SafeDeposits! <br/> If you've been sent here by
                             a seller click the "Use Existing Deposit Contract" button and enter the contract
                             address you were given.
                         </Text>
                     </Flex> }
-                    {(isActive && !isNewContract && !isExistingContract && !isAbout) && <Flex h='20%' w='100%' align='center' justify='space-evenly' direction={['column', 'row']}>
+                    {(!isNewContract && !isExistingContract && !isAbout) && <Flex h='20%' w='100%' align='center' justify='space-evenly' direction={['column', 'row']}>
                         <Button onClick={() => setIsNewContract(true)} m='1rem'>Create New Deposit Contract</Button>
                         <Button onClick={() => setIsExistingContract(true)}>Use Existing Deposit Contract</Button>
                     </Flex>}

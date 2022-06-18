@@ -1,14 +1,9 @@
 import { Button, Flex, Heading, HStack, VStack, Divider, Tag, Text, Img } from '@chakra-ui/react';
-import ConnectModal from './connect-modal/ConnectModal';
-import truncateEthAddress from 'truncate-eth-address'
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 
-export default function Navbar({accounts, isCorrectChain, isActive, connector, setIsAbout}) {
+export default function Navbar({isCorrectChain, setIsAbout, activeChain}) {
     
-    /*Brief aside on wallet connections. Metamask deactivating doesn't do anything, you have to do it through the metamask ui.
-    Some websites have the disconnect buttons for Metamask but honestly I just think it's confusing since its a 
-    button that doesn't actually do anything. However for Coinbase Wallet there is no way to disconnect from the UI as far 
-    as I can tell (do better Coinbase) so there needs to be a disconnect button for coinbase
-    */
+
     return (
             <Flex position='fixed' w='100%' zIndex='2' backgroundColor='white'>
                 <VStack>
@@ -19,9 +14,8 @@ export default function Navbar({accounts, isCorrectChain, isActive, connector, s
                             <Button variant='ghost' onClick={() => setIsAbout(true)} size={['sm', 'lg']}>About</Button>
                         </HStack>
                         <HStack>
-                            {(!isCorrectChain && isActive) && <Text as='mark'>Please Connect to Rinkeby Testnet to interact with this DApp</Text>}
-                            {isActive ? <Tag size={['sm','lg']} >{truncateEthAddress(accounts[0])}</Tag> : <ConnectModal />}
-                            {connector.coinbaseWallet && <Button onClick={() => connector.deactivate()}>Disconnect</Button>}
+                            {(activeChain && !isCorrectChain) && <Text as='mark'>Please Connect to Rinkeby Testnet to interact with this DApp</Text>}
+                            <ConnectButton />
                         </HStack>
                     </Flex>
                     <Divider w='100vw' borderColor='black' borderWidth='1'></Divider>
