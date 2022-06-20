@@ -2,15 +2,22 @@ import { Button, FormControl, FormErrorMessage, Input, FormLabel, VStack, Box, F
 import { Formik, Field, Form } from 'formik'
 import { InputControl } from 'formik-chakra-ui';
 import { useEffect, useState } from "react";
+import { useContract, useSigner } from "wagmi";
 import * as Yup from 'yup'
 import BackButton from "./BackButton";
 
 
 
-export default function ExistingContractForm({depositFactoryContract, setNewContractAddress, setIsNewContract, setIsExistingContract}) {
+export default function ExistingContractForm({depositFactoryAddress, depositFactoryABI,
+     setNewContractAddress, setIsNewContract, setIsExistingContract}) {
     const [prevAddresses, setPrevAddresses] = useState([]);
     const [loading, setLoading] = useState(false);
 
+    const depositFactoryContract = useContract({
+        addressOrName: depositFactoryAddress,
+        contractInterface: depositFactoryABI,
+    })
+    
     const allPrevContracts = async () => {
         setLoading(true);
         const filter = depositFactoryContract.filters.DepositCreated();
@@ -22,10 +29,10 @@ export default function ExistingContractForm({depositFactoryContract, setNewCont
 
     //Render all previous contract addresses on mount
     useEffect(() => {
-        if(depositFactoryContract) {
-            allPrevContracts()
+        if (depositFactoryContract) {
+            allPrevContracts();
         }
-    },[depositFactoryContract])
+    },[])
 
     return (
      <Flex>

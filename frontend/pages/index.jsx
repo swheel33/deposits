@@ -1,7 +1,5 @@
 import { ChakraProvider } from '@chakra-ui/react';
 import DApp from '../components/DApp';
-import Provider from '../components/Provider';
-import Head from 'next/head';
 import '@rainbow-me/rainbowkit/styles.css';
 import {
   getDefaultWallets,
@@ -39,17 +37,11 @@ export default function Home() {
   return (
     <div>
       <ChakraProvider>
-        <Provider>
         <WagmiConfig client={wagmiClient}>
           <RainbowKitProvider chains={chains}>
-            <Head>
-              <title>SafeDeposit</title>
-            </Head>
             <DApp />
           </RainbowKitProvider>
         </WagmiConfig>
-        </Provider>
-        
       </ChakraProvider>
     </div>
   )

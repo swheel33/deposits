@@ -2,7 +2,7 @@ import { Button, Box, Flex, Heading, ListItem, OrderedList, Text, VStack, HStack
 import { useState } from "react";
 import { BigNumber } from "ethers";
 
-export default function About({setIsAbout, daiTokenContract, USDCTokenContract, tetherTokenContract, accounts, isCorrectChain}) {
+export default function About({setIsAbout, daiTokenContract, USDCTokenContract, tetherTokenContract, account, isCorrectChain}) {
     //I was having issues with the accounts not working being passed down 2 levels so the faucet stuff is here instead of a separate component
     const [loadingDai, setLoadingDai] = useState(false);
     const [loadingUSDC, setLoadingUSDC] = useState(false);
@@ -19,7 +19,7 @@ export default function About({setIsAbout, daiTokenContract, USDCTokenContract, 
     const daiMint = async () => {
         try {
             setLoadingDai(true)
-            const response = await daiTokenContract.mint(accounts[0], oneThousandDai);
+            const response = await daiTokenContract.mint(account.address, oneThousandDai);
             await response.wait();
             setLoadingDai(false)
         } catch (error) {
@@ -31,7 +31,7 @@ export default function About({setIsAbout, daiTokenContract, USDCTokenContract, 
     const usdcMint = async () => {
         try {
             setLoadingUSDC(true)
-            const response = await USDCTokenContract.mint(accounts[0], oneThousandOther);
+            const response = await USDCTokenContract.mint(account.address, oneThousandOther);
             await response.wait();
             setLoadingUSDC(false)
         } catch (error) {
@@ -43,7 +43,7 @@ export default function About({setIsAbout, daiTokenContract, USDCTokenContract, 
     const tetherMint = async () => {
         try {
             setLoadingTether(true)
-            const response = await tetherTokenContract.mint(accounts[0], oneThousandOther);
+            const response = await tetherTokenContract.mint(account.address, oneThousandOther);
             await response.wait();
             setLoadingTether(false)
         } catch (error) {
@@ -132,8 +132,8 @@ export default function About({setIsAbout, daiTokenContract, USDCTokenContract, 
                         </Text>
                         <Flex>
                             
-                            {(!accounts || !isCorrectChain) && <Text fontWeight='bold'>Please connect wallet to Rinkeby Testnet to use faucet</Text>}
-                            {(accounts && isCorrectChain) && <Flex>
+                            {(!account || !isCorrectChain) && <Text fontWeight='bold'>Please connect wallet to Rinkeby Testnet to use faucet</Text>}
+                            {(account && isCorrectChain) && <Flex>
                                             <HStack>
                                                 <Button onClick={daiMint} isLoading={loadingDai} loadingText='Minting Dai'>Mint 1000 Dai</Button>
                                                 <Button onClick={usdcMint} isLoading={loadingUSDC} loadingText='Minting USDC'>Mint 1000 USDC</Button>

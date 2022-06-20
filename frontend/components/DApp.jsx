@@ -8,15 +8,15 @@ import { ethers } from "ethers"
 import DaiAbi from '../abi/DaiAbi.json'
 import TetherAbi from '../abi/TetherAbi.json';
 import USDCAbi from '../abi/USDCAbi.json';
-import DepositFactoryABI from '../contracts/DepositFactory.json'
+import depositFactoryABI from '../contracts/DepositFactory.json'
 import ContractInstance from './contract-related/ContractInstance'
 import DepositABI from '../contracts/Deposit.json';
 import { useWeb3React } from '@web3-react/core';
 import About from './About'
-import { useNetwork, useAccount, useEnsName } from 'wagmi';
+import { useNetwork, useAccount, useEnsName, useContractRead, useContract } from 'wagmi';
 
 export default function DApp() {
-    const { chainId, accounts, isActive, provider, ENSNames, connector } = useWeb3React();
+    //const { chainId, accounts, isActive, provider, ENSNames, connector } = useWeb3React();
     
     const { activeChain } = useNetwork();
     const { data: account } = useAccount();
@@ -55,27 +55,28 @@ export default function DApp() {
     
     //ethers signer and contracts
     const [signer, setSigner] = useState();
-    const [depositFactoryContract, setDepositFactoryContract] = useState();
+    //const [depositFactoryContract, setDepositFactoryContract] = useState();
     const [newDepositContract, setNewDepositContract] = useState();
 
-    useEffect(() => {
+
+    /*useEffect(() => {
         if(provider) {
             setSigner(provider.getSigner());
         }
-    }, [provider])
+    }, [provider])*/
 
     const [daiTokenContract, setDaiTokenContract] = useState();
     const [USDCTokenContract, setUSDCTokenContract] = useState();
     const [tetherTokenContract, setTetherTokenContract] = useState();
     
-    useEffect(() => {
+    /* useEffect(() => {
         if(signer) {
             setDepositFactoryContract(new ethers.Contract(depositFactoryAddress, DepositFactoryABI.abi, signer));
             setDaiTokenContract(new ethers.Contract(daiContractAddress, DaiAbi, signer));
             setUSDCTokenContract(new ethers.Contract(usdcContractAddress, USDCAbi, signer));
             setTetherTokenContract(new ethers.Contract(tetherContractAddress, TetherAbi, signer));
         }
-    }, [signer])
+    }, [signer]) */
 
     useEffect(() => {
         if (chosenToken === 'Dai') {
@@ -87,20 +88,18 @@ export default function DApp() {
         }
     }, [chosenToken])
 
-    useEffect(() => {
+    /* useEffect(() => {
         if(newContractAddress) {
             setNewDepositContract(new ethers.Contract(newContractAddress, DepositABI.abi, signer))
         }
-    }, [newContractAddress])
-    
-    
+    }, [newContractAddress]) */
 
 
     return (
+       
         <Box h='100vh' w='100vw'>
             <Navbar 
                 isCorrectChain={isCorrectChain}
-                activeChain={activeChain} 
                 setIsAbout={setIsAbout}/>
             <Box p='0 1rem' pos='relative' top={['5rem','8rem']}>
                 <Box h='200%'>
@@ -109,12 +108,13 @@ export default function DApp() {
                             daiTokenContract={daiTokenContract}
                             USDCTokenContract={USDCTokenContract}
                             tetherTokenContract={tetherTokenContract}
-                            accounts={accounts}
+                            account={account}
                             isCorrectChain={isCorrectChain}
                             />}
                 </Box>
-                {(!activeChain && !isAbout) && <Center><Text fontSize={['xl','3xl']}>Please connect your wallet to access this DApp</Text></Center>}
-                {(activeChain && isCorrectChain && !isAbout) && <Flex h='80%' align='center' direction='column'>
+                {(!account && !isAbout) && <Center><Text fontSize={['xl','3xl']}>Please connect your wallet to access this DApp</Text></Center>}
+                {(account && !isCorrectChain && !isAbout) && <Center><Text fontSize={['xl','3xl']}>Please connect to the Rinkeby test network to use this app</Text></Center>}
+                {(isCorrectChain && !isAbout) && <Flex h='80%' align='center' direction='column'>
                     {(!isNewContract && !isExistingContract &&!isAbout) && <Flex>
                         <Text>Welcome to SafeDeposits! <br/> If you've been sent here by
                             a seller click the "Use Existing Deposit Contract" button and enter the contract
@@ -126,24 +126,26 @@ export default function DApp() {
                         <Button onClick={() => setIsExistingContract(true)}>Use Existing Deposit Contract</Button>
                     </Flex>}
                     {(!newContractAddress && isNewContract && !isAbout) && <NewContractForm 
+                                                                    depositFactoryAddress={depositFactoryAddress}
+                                                                    depositFactoryABI={depositFactoryABI.abi}
                                                                     setChosenToken={setChosenToken}
                                                                     daiContractAddress={daiContractAddress}
                                                                     usdcContractAddress={usdcContractAddress}
                                                                     tetherContractAddress={tetherContractAddress}
-                                                                    depositFactoryContract={depositFactoryContract} 
-                                                                    accounts={accounts} 
-                                                                    provider={provider}
+                                                                    account={account} 
                                                                     setNewContractAddress={setNewContractAddress}
                                                                     setIsExistingContract={setIsExistingContract}
                                                                     setIsNewContract={setIsNewContract}
                                                                     setNewlyCreated={setNewlyCreated}/>}
                     {(!newContractAddress && isExistingContract && !isAbout) && <ExistingContractForm 
-                                                                        depositFactoryContract={depositFactoryContract} 
+                                                                        depositFactoryAddress={depositFactoryAddress} 
+                                                                        depositFactoryABI={depositFactoryABI.abi}
                                                                         setNewContractAddress={setNewContractAddress}
                                                                         setIsExistingContract={setIsExistingContract}
                                                                         setIsNewContract={setIsNewContract}
                                                                         />}
-                    {(newDepositContract && !isAbout) && <ContractInstance depositContract={newDepositContract}
+                    {(newDepositContract && !isAbout) && <ContractInstance 
+                                                            depositContract={newDepositContract}
                                                             tokenContract={chosenTokenContract}
                                                             daiContractAddress={daiContractAddress}
                                                             usdcContractAddress={usdcContractAddress}
@@ -151,12 +153,14 @@ export default function DApp() {
                                                             chosenToken={chosenToken}
                                                             setChosenToken={setChosenToken}
                                                             depositContractAddress={newContractAddress}
-                                                            accounts={accounts}
+                                                            account={account}
                                                             newlyCreated={newlyCreated}/>}
                 </Flex>} 
             </Box>
             <Footer />
-        </Box>
+        </Box> 
+       
+        
         
     )
 }

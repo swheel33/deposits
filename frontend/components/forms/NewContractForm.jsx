@@ -1,36 +1,53 @@
-import { Button, FormControl, FormErrorMessage, Input, FormLabel, VStack, Box, Flex, RadioGroup, HStack, Radio } from "@chakra-ui/react";
-import { Formik, Field, Form } from 'formik'
+import { Button, FormControl, FormErrorMessage, FormLabel, VStack, Flex, Radio } from "@chakra-ui/react";
+import { Formik, Form } from 'formik'
 import { RadioGroupControl, InputControl } from 'formik-chakra-ui';
 import * as Yup from 'yup'
 import DatePickerField from "./DatePickerField";
-import { useState } from 'react'
+import { useEffect } from 'react'
 import BackButton from "./BackButton";
+import { useContractEvent, useContractWrite, useWaitForTransaction } from "wagmi";
 
 
-export default function NewContractForm({depositFactoryContract, accounts, 
+
+export default function NewContractForm({depositFactoryAddress, depositFactoryABI, account, 
     setNewContractAddress, setIsNewContract, setIsExistingContract, setNewlyCreated, setChosenToken,
     daiContractAddress, usdcContractAddress, tetherContractAddress}) {
     const today = new Date();
     let yesterday = new Date();
     yesterday.setDate(today.getDate() - 1);
 
-    const [loading, setLoading] = useState(false);
+    const { data, write, isLoading: startLoading } = useContractWrite({
+        addressOrName: depositFactoryAddress,
+        contractInterface: depositFactoryABI,
+    },
+    'createDeposit',
+    );
 
-    const depositHandler = async (approvalAmount, meetupDate, chosenTokenAddress) => {
-        try {
-            setLoading(true);
-            const tx = await depositFactoryContract.createDeposit(approvalAmount, meetupDate , chosenTokenAddress, accounts[0]);
-            const receipt = await tx.wait();
-            const emittedAddress = receipt.logs[0].address;
-            setNewlyCreated(true);
-            setChosenToken(determineChosenToken(chosenTokenAddress));
-            setNewContractAddress(emittedAddress);
-            console.log(`Contract creation successful! Created contract address is: ${emittedAddress}. Deposit amount is ${approvalAmount} and the agreed date is ${meetupDate}.`);
-        } catch (error) {
-            console.log(error);
-            setLoading(false);
-        }
+    /* This is a cleaner implementation of the code below but doesn't work if two people create deposits at the same time 
+    useContractEvent({
+        addressOrName: depositFactoryAddress,
+        contractInterface: depositFactoryABI,
+    },
+    'DepositCreated',
+    event =>  {
+        setNewContractAddress(event[0]);
+        setNewlyCreated(true);
     }
+    ) */
+    
+    const { data: receipt, isLoading} = useWaitForTransaction({
+        hash: data?.hash,
+      });
+
+    //Checking for transaction completion
+      useEffect(() => {
+        if (receipt) {
+            const emittedAddress = receipt.logs[0].address;
+            setNewContractAddress(emittedAddress);
+            setNewlyCreated(true);
+            console.log(`Contract creation successful! Created contract address is: ${emittedAddress}.`);
+        }
+    },[receipt])
 
     const determineChosenToken = chosenTokenAddress => {
         if (chosenTokenAddress === daiContractAddress) {
@@ -62,7 +79,9 @@ export default function NewContractForm({depositFactoryContract, accounts,
                         })}
                         onSubmit={values => {
                             //Need additional formatting since js uses ms for timestamp and blockchain is in s
-                            depositHandler(values.amount, parseInt(values.meetupDate.getTime()/1000), values.chosenToken);
+                            const date = parseInt(values.meetupDate.getTime()/1000);
+                            write({args: [values.amount, date, values.chosenToken, account.address]});
+                            setChosenToken(determineChosenToken(values.chosenToken));
                         }}
                     >
                     {formik =>  (
@@ -79,7 +98,7 @@ export default function NewContractForm({depositFactoryContract, accounts,
                                     <DatePickerField name='meetupDate'/>
                                     <FormErrorMessage>{formik.errors.meetupDate}</FormErrorMessage>
                                 </FormControl>
-                                <Button type='submit' isLoading={loading} loadingText='Creating Contract'>Create Deposit</Button> 
+                                <Button type='submit' isLoading={isLoading || startLoading} loadingText='Creating Contract'>Create Deposit</Button> 
                             </VStack>
                         </Form> 
                     )}

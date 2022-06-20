@@ -1,7 +1,7 @@
 import { Button, Flex, Heading, HStack, VStack, Divider, Tag, Text, Img } from '@chakra-ui/react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 
-export default function Navbar({isCorrectChain, setIsAbout, activeChain}) {
+export default function Navbar({setIsAbout}) {
     
 
     return (
@@ -14,7 +14,6 @@ export default function Navbar({isCorrectChain, setIsAbout, activeChain}) {
                             <Button variant='ghost' onClick={() => setIsAbout(true)} size={['sm', 'lg']}>About</Button>
                         </HStack>
                         <HStack>
-                            {(activeChain && !isCorrectChain) && <Text as='mark'>Please Connect to Rinkeby Testnet to interact with this DApp</Text>}
                             <ConnectButton />
                         </HStack>
                     </Flex>

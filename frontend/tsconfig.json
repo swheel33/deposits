@@ -23,7 +23,7 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx"
-, "components/forms/DatePickerField.jsx", "components/forms/NewContractForm.jsxmponents/forms/ExistingContractForm.jsxrm.jsx", "components/MetamaskDApp.jsx", "components/connect-modal/WalletConnectConnect.jsx", "components/WalletConnectDApp.jsx", "components/connect-modal/MetaMaskConnect.jsx", "components/connect-modal/ConnectModal.jsx", "components/CoinbaseWalletDApp.jsx", "components/connect-modal/CoinbaseWalletConnect.jsx", "components/App.jsx", "components/DApp.jsx", "components/DepositInteractionOld.jsx"  ],
+, "components/forms/DatePickerField.jsx", "components/forms/NewContractForm.jsxmponents/forms/ExistingContractForm.jsxrm.jsx", "components/MetamaskDApp.jsx", "components/connect-modal/WalletConnectConnect.jsx", "components/WalletConnectDApp.jsx", "components/connect-modal/MetaMaskConnect.jsx", "components/connect-modal/ConnectModal.jsx", "components/CoinbaseWalletDApp.jsx", "components/connect-modal/CoinbaseWalletConnect.jsx", "components/App.jsx", "components/DApp.jsx", "components/DepositInteractionOld.jsx", "pages/index.jsx"  ],
   "exclude": [
     "node_modules"
   ]

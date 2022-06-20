@@ -7,6 +7,7 @@ const nextConfig = {
     alchemyKey: process.env.ALCHEMY_KEY,
     magicKey: process.env.MAGIC_KEY,
   },
+
 }
 
 module.exports = nextConfig
