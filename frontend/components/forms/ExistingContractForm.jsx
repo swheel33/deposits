@@ -1,8 +1,8 @@
-import { Button, FormControl, FormErrorMessage, Input, FormLabel, VStack, Box, Flex } from "@chakra-ui/react";
-import { Formik, Field, Form } from 'formik'
+import { Button, VStack, Flex } from "@chakra-ui/react";
+import { Formik, Form } from 'formik'
 import { InputControl } from 'formik-chakra-ui';
 import { useEffect, useState } from "react";
-import { useContract, useSigner } from "wagmi";
+import { useContract, useProvider } from "wagmi";
 import * as Yup from 'yup'
 import BackButton from "./BackButton";
 
@@ -13,9 +13,11 @@ export default function ExistingContractForm({depositFactoryAddress, depositFact
     const [prevAddresses, setPrevAddresses] = useState([]);
     const [loading, setLoading] = useState(false);
 
+    const provider = useProvider();
     const depositFactoryContract = useContract({
         addressOrName: depositFactoryAddress,
         contractInterface: depositFactoryABI,
+        signerOrProvider: provider,
     })
     
     const allPrevContracts = async () => {
@@ -29,9 +31,7 @@ export default function ExistingContractForm({depositFactoryAddress, depositFact
 
     //Render all previous contract addresses on mount
     useEffect(() => {
-        if (depositFactoryContract) {
-            allPrevContracts();
-        }
+        allPrevContracts();
     },[])
 
     return (

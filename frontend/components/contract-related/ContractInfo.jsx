@@ -1,25 +1,17 @@
 import { Box, Text } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
+import { useToken } from 'wagmi';
+
 
 
 export default function ContractInfo({didApprove, didDeposit, didContest, didClaim, contractState,
-     contractAddress, depositAmount, agreedDate, buyer, seller, newlyCreated, chosenToken
+    depositContractAddress, depositAmount, agreedDate, buyer, seller, newlyCreated, tokenAddress
     }) {
     const [amountReadable, setAmountReadable] = useState();
-    const [dateReadable, setDateReadable] = useState();
     const [status, setStatus] = useState();
 
-    useEffect(() => {
-        if (depositAmount) {
-            setAmountReadable(depositAmount.toString())
-        }
-    },[depositAmount])
-
-    useEffect(() => {
-        if (agreedDate) {
-            setDateReadable(agreedDate.toDateString())
-        }
-    },[agreedDate])
+    //const agreedDateReadable = new Date(agreedDate*1000).toDateString();
+    //const depositAmountReadable = depositAmount.toString();
 
     const getStatus = () => {
         if (!didApprove && !didDeposit && contractState=='Created') {
@@ -35,6 +27,10 @@ export default function ContractInfo({didApprove, didDeposit, didContest, didCla
         }
     }
 
+    const { data: token } = useToken({
+        address: tokenAddress,
+    })
+
 
     useEffect(() => {
         getStatus();
@@ -49,9 +45,9 @@ export default function ContractInfo({didApprove, didDeposit, didContest, didCla
             </Text>}
             {newlyCreated && <br/>}
             <Text>Contract Status: {status}</Text>
-            <Text>Contract Address: {contractAddress}</Text>
-            <Text>Deposit Amount: {amountReadable} {chosenToken}</Text>
-            <Text>Agreed Date: {dateReadable}</Text>
+            <Text>Contract Address: {depositContractAddress}</Text>
+            <Text>Deposit Amount: {depositAmount.toString()} {token?.symbol}</Text>
+            <Text>Agreed Date: {new Date(agreedDate*1000).toDateString()}</Text>
             {contractState=='Locked' && <br/>}
             {contractState=='Locked' && <Text>
                 Only the buyer (depositor) can contest and only the seller (contract creator) can claim.

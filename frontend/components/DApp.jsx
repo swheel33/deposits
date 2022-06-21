@@ -9,8 +9,8 @@ import DaiAbi from '../abi/DaiAbi.json'
 import TetherAbi from '../abi/TetherAbi.json';
 import USDCAbi from '../abi/USDCAbi.json';
 import depositFactoryABI from '../contracts/DepositFactory.json'
-import ContractInstance from './contract-related/ContractInstance'
-import DepositABI from '../contracts/Deposit.json';
+import DepositContractInstance from './contract-related/DepositContractInstance'
+import depositABI from '../contracts/Deposit.json';
 import { useWeb3React } from '@web3-react/core';
 import About from './About'
 import { useNetwork, useAccount, useEnsName, useContractRead, useContract } from 'wagmi';
@@ -144,8 +144,7 @@ export default function DApp() {
                                                                         setIsExistingContract={setIsExistingContract}
                                                                         setIsNewContract={setIsNewContract}
                                                                         />}
-                    {(newDepositContract && !isAbout) && <ContractInstance 
-                                                            depositContract={newDepositContract}
+                    {(newContractAddress && !isAbout) && <DepositContractInstance 
                                                             tokenContract={chosenTokenContract}
                                                             daiContractAddress={daiContractAddress}
                                                             usdcContractAddress={usdcContractAddress}
@@ -153,6 +152,7 @@ export default function DApp() {
                                                             chosenToken={chosenToken}
                                                             setChosenToken={setChosenToken}
                                                             depositContractAddress={newContractAddress}
+                                                            depositContractABI={depositABI.abi}
                                                             account={account}
                                                             newlyCreated={newlyCreated}/>}
                 </Flex>} 

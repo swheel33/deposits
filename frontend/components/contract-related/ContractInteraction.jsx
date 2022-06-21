@@ -5,7 +5,7 @@ import Claim from './Claim';
 import { Flex } from '@chakra-ui/react';
 
 export default function ContractInteraction({didApprove, didDeposit, didClaim, didContest, setDidApprove,
-     setDidDeposit, setDidContest, setDidClaim, tokenContract, depositContract, depositContractAddress, accounts,
+     setDidDeposit, setDidContest, setDidClaim, tokenContract, depositContract, depositContractAddress, account,
       buyer, seller, claimEligible, contestEligible, depositAmount}) {
     return (
        <Flex justify='center'>
@@ -16,8 +16,8 @@ export default function ContractInteraction({didApprove, didDeposit, didClaim, d
                 setDidApprove={setDidApprove}
                 />}
             {(didApprove && !didDeposit) && <Deposit depositContract={depositContract} setDidDeposit={setDidDeposit}/>}
-            {(contestEligible && !didContest && (accounts[0] == buyer)) && <Contest depositContract={depositContract} setDidContest={setDidContest}/>}
-            {(claimEligible && !didClaim && (accounts[0] == seller)) && <Claim depositContract={depositContract} setDidClaim={setDidClaim}/>}
+            {(contestEligible && !didContest && (account.address == buyer)) && <Contest depositContract={depositContract} setDidContest={setDidContest}/>}
+            {(claimEligible && !didClaim && (account.address == seller)) && <Claim depositContract={depositContract} setDidClaim={setDidClaim}/>}
        </Flex>
         
     )

@@ -3,9 +3,8 @@ import { Formik, Form } from 'formik'
 import { RadioGroupControl, InputControl } from 'formik-chakra-ui';
 import * as Yup from 'yup'
 import DatePickerField from "./DatePickerField";
-import { useEffect } from 'react'
 import BackButton from "./BackButton";
-import { useContractEvent, useContractWrite, useWaitForTransaction } from "wagmi";
+import { useContractWrite, useWaitForTransaction } from "wagmi";
 
 
 
@@ -22,32 +21,17 @@ export default function NewContractForm({depositFactoryAddress, depositFactoryAB
     },
     'createDeposit',
     );
-
-    /* This is a cleaner implementation of the code below but doesn't work if two people create deposits at the same time 
-    useContractEvent({
-        addressOrName: depositFactoryAddress,
-        contractInterface: depositFactoryABI,
-    },
-    'DepositCreated',
-    event =>  {
-        setNewContractAddress(event[0]);
-        setNewlyCreated(true);
-    }
-    ) */
     
-    const { data: receipt, isLoading} = useWaitForTransaction({
+    const { isLoading } = useWaitForTransaction({
         hash: data?.hash,
-      });
-
-    //Checking for transaction completion
-      useEffect(() => {
-        if (receipt) {
-            const emittedAddress = receipt.logs[0].address;
+        onSuccess(data) {
+            const emittedAddress = data.logs[0].address;
             setNewContractAddress(emittedAddress);
             setNewlyCreated(true);
             console.log(`Contract creation successful! Created contract address is: ${emittedAddress}.`);
         }
-    },[receipt])
+      }
+      );
 
     const determineChosenToken = chosenTokenAddress => {
         if (chosenTokenAddress === daiContractAddress) {
