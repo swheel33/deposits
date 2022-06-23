@@ -2,13 +2,13 @@ import Approve from './Approve';
 import Deposit from './Deposit';
 import Contest from './Contest';
 import Claim from './Claim';
-import { Flex } from '@chakra-ui/react';
+import { Box } from '@mantine/core';
 
 export default function ContractInteraction({didApprove, didDeposit, didClaim, didContest, setDidApprove,
      setDidDeposit, setDidContest, setDidClaim, tokenAddress, depositContract, depositContractAddress, account,
       buyer, seller, claimEligible, contestEligible, depositAmount}) {
     return (
-       <Flex justify='center'>
+       <Box>
             {(!didApprove && !didDeposit) && <Approve 
                 tokenAddress={tokenAddress} 
                 depositContractAddress={depositContractAddress} 
@@ -16,9 +16,9 @@ export default function ContractInteraction({didApprove, didDeposit, didClaim, d
                 setDidApprove={setDidApprove}
                 />}
             {(didApprove && !didDeposit) && <Deposit depositContractAddress={depositContractAddress} setDidDeposit={setDidDeposit}/>}
-            {(contestEligible && !didContest && (account.address == buyer)) && <Contest depositContract={depositContract} setDidContest={setDidContest}/>}
-            {(claimEligible && !didClaim && (account.address == seller)) && <Claim depositContract={depositContract} setDidClaim={setDidClaim}/>}
-       </Flex>
+            {(contestEligible && !didContest && (account.address == buyer)) && <Contest depositContractAddress={depositContractAddress} setDidContest={setDidContest}/>}
+            {(claimEligible && !didClaim && (account.address == seller)) && <Claim depositContractAddress={depositContractAddress} setDidClaim={setDidClaim}/>}
+       </Box>
         
     )
 }

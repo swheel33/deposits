@@ -1,4 +1,4 @@
-import { Box, Text } from '@chakra-ui/react';
+import { Box, Text } from '@mantine/core';
 import { BigNumber } from 'ethers';
 import { useEffect, useState } from 'react';
 import { useToken } from 'wagmi';
@@ -31,20 +31,15 @@ export default function ContractInfo({didContest, didClaim, contractState,
 
     const numberHandling = () => {
         if (token?.symbol === 'DAI') {
-            depositAmount = BigNumber.from(depositAmount).div(BigNumber.from(10).pow(18)).toString();
+            return BigNumber.from(depositAmount).div(BigNumber.from(10).pow(18));
         } else if (token?.symbol === 'USDC') {
-            depositAmount = BigNumber.from(depositAmount).div(BigNumber.from(10).pow(6)).toString();
+            return BigNumber.from(depositAmount).div(BigNumber.from(10).pow(6));
         }
     }
-
 
     useEffect(() => {
         getStatus();
     },[didContest, didClaim, contractState])
-
-    useEffect(() => {
-        numberHandling()
-    },[token])
 
 
     return (
@@ -56,7 +51,7 @@ export default function ContractInfo({didContest, didClaim, contractState,
             {newlyCreated && <br/>}
             <Text>Contract Status: {status}</Text>
             <Text>Contract Address: {depositContractAddress}</Text>
-            <Text>Deposit Amount: {depositAmount} {token?.symbol}</Text>
+            <Text>Deposit Amount: {numberHandling().toString()} {token?.symbol}</Text>
             <Text>Agreed Date: {new Date(agreedDate*1000).toDateString()}</Text>
             {contractState=='Locked' && <br/>}
             {contractState=='Locked' && <Text>

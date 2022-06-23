@@ -1,12 +1,7 @@
-import { Button, VStack, Flex } from "@chakra-ui/react";
-import { Formik, Form } from 'formik'
-import { InputControl } from 'formik-chakra-ui';
 import { useEffect, useState } from "react";
 import { useContract, useProvider } from "wagmi";
-import * as Yup from 'yup'
-import BackButton from "./BackButton";
-
-
+import { Box, Button, TextInput } from '@mantine/core';
+import { useForm } from '@mantine/form';
 
 export default function ExistingContractForm({depositFactoryAddress, depositFactoryABI,
      setNewContractAddress, setIsNewContract, setIsExistingContract}) {
@@ -34,35 +29,29 @@ export default function ExistingContractForm({depositFactoryAddress, depositFact
         allPrevContracts();
     },[])
 
+    const form = useForm({
+        initialValues: {
+            contractAddress: ''
+        },
+        validate: {
+            contractAddress: value => (prevAddresses.includes(value) ? null : 'Please enter a valid deposit contract address'),
+        }
+    })
+
+    const handleSubmit = values => {
+        setNewContractAddress(values.contractAddress);
+    }
+
     return (
-     <Flex>
-        <BackButton setIsExistingContract={setIsExistingContract} setIsNewContract={setIsNewContract}/>
-        <Formik
-            initialValues={{address: ''}}
-            validationSchema={Yup.object({
-                address: Yup.string()
-                    .required('Required unless creating a new Deposit contract')
-                    .oneOf(prevAddresses, `Please enter a valid Deposit contract address. If you don't have one you can
-                    create a Deposit contract with the Create Deposit button`)
-                })}
-                onSubmit={(values,actions) => {
-                    setNewContractAddress(values.address)
-                    actions.resetForm();
-                }}
-            >
-            {formik =>  (
-                <Form onSubmit={formik.handleSubmit}>
-                    <VStack>
-                        <InputControl name='address' label='Contract Address'/>
-                        <Button isDisabled={loading} type='submit'>Submit</Button> 
-                    </VStack>
-                </Form> 
-            )}
-        </Formik>
-     </Flex>
-     
-     
-            
-        
+     <Box>
+        <Button onClick={() => {setIsExistingContract(false); setIsNewContract(false)}}>Back</Button>
+        <form onSubmit={form.onSubmit(values => handleSubmit(values))}>
+            <TextInput 
+            placeholder='0x...'
+            {...form.getInputProps('contractAddress')}/>
+            <Button type='submit'>Submit</Button>
+        </form>
+     </Box>
+
     )
 }

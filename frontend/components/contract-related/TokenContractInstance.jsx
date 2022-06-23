@@ -1,6 +1,6 @@
 import { useContract, useProvider, erc20ABI, useAccount } from "wagmi"
 import { useEffect, useState } from "react";
-import { Box } from "@chakra-ui/react";
+import { Box } from '@mantine/core';
 import ContractInteraction from "./ContractInteraction";
 
 export default function TokenContractInstance({tokenAddress, 

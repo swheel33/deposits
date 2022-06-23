@@ -1,4 +1,4 @@
-import { Box, Heading } from "@chakra-ui/react";
+import { Box, Title } from '@mantine/core';
 import { useState, useEffect } from "react";
 import ContractInfo from "./ContractInfo";
 import TokenContractInstance from './TokenContractInstance';
@@ -150,7 +150,7 @@ export default function DepositContractInstance({depositContractAddress, deposit
     
     return (
         <Box>
-            {isLoading && <Heading>Loading...</Heading>}
+            {isLoading && <Title>Loading...</Title>}
             {!isLoading && 
                 <Box>
                     <ContractInfo 

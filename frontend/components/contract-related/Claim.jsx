@@ -1,23 +1,25 @@
-import { Button } from "@chakra-ui/react";
-import { useState } from "react";
+import { Button } from '@mantine/core';
+import depositABI from '../../contracts/Deposit.json';
 
-export default function ClaimInteraction({depositContract, setDidClaim}) {
-    const [loading, setLoading] = useState(false);
+export default function ClaimInteraction({depositContractAddress, setDidClaim}) {
     
-    const handleClaimFunds = async () => {
-        try {
-            setLoading(true);
-            const tx = await depositContract.claimFunds();
-            await tx.wait();
-            setDidClaim(true);
-            console.log('Deposit claim successful!')
-        } catch (error) {
-            console.log(error);
-            setLoading(false);
+    const { write, data, isLoading: loading1 } = useContractWrite({
+        addressOrName: depositContractAddress,
+        contractInterface: depositABI.abi,
+    },
+    'claimFunds',
+    )
+
+    const { isLoading: loading2 } = useWaitForTransaction({
+        hash: data?.hash,
+        onSuccess() {
+            setDidClaim(true)
         }
     }
+    )
+    
     
     return (
-        <Button onClick={handleClaimFunds} isLoading={loading} loadingText='Claiming Funds'>Claim Funds</Button>
+        <Button onClick={() => write()} loading={loading1 || loading2}>Claim Funds</Button>
     )
 }

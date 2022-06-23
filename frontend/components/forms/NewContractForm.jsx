@@ -1,13 +1,8 @@
-import { Button, FormControl, FormErrorMessage, FormLabel, VStack, Flex, Radio } from "@chakra-ui/react";
-import { Formik, Form } from 'formik'
-import { RadioGroupControl, InputControl } from 'formik-chakra-ui';
-import * as Yup from 'yup'
-import DatePickerField from "./DatePickerField";
-import BackButton from "./BackButton";
+import { Box, Button, NumberInput, RadioGroup, Radio } from '@mantine/core';
+import { DatePicker } from '@mantine/dates'
 import { useContractWrite, useWaitForTransaction } from "wagmi";
 import { BigNumber } from "ethers";
-
-
+import { useForm } from '@mantine/form';
 
 export default function NewContractForm({depositFactoryAddress, depositFactoryABI, account, 
     setNewContractAddress, setIsNewContract, setIsExistingContract, setNewlyCreated,
@@ -16,14 +11,14 @@ export default function NewContractForm({depositFactoryAddress, depositFactoryAB
     let yesterday = new Date();
     yesterday.setDate(today.getDate() - 1);
 
-    const { data, write, isLoading: startLoading } = useContractWrite({
+    const { data, write, isLoading: loading1 } = useContractWrite({
         addressOrName: depositFactoryAddress,
         contractInterface: depositFactoryABI,
     },
     'createDeposit',
     );
     
-    const { isLoading } = useWaitForTransaction({
+    const { isLoading: loading2 } = useWaitForTransaction({
         hash: data?.hash,
         onSuccess(data) {
             const emittedAddress = data.logs[0].address;
@@ -34,52 +29,53 @@ export default function NewContractForm({depositFactoryAddress, depositFactoryAB
       }
       );
 
+    const form = useForm({
+        initialValues: {
+            amount: 0,
+            meetupDate: today,
+            chosenToken: daiContractAddress,
+        },
+        validate: {
+            amount: value => (value > 0 ? null : 'Amount must be greater than zero'),
+            meetupDate: value => (value < yesterday ? 'Meetup date cannot be in the past' : null)
+        }
+    })
+
+    const handleSubmit = values => {
+        const date = parseInt(values.meetupDate.getTime()/1000);
+        let amount;
+        if (values.chosenToken === usdcContractAddress) {
+            amount = BigNumber.from(values.amount).mul(BigNumber.from(10).pow(6))
+        } else if (values.chosenToken === daiContractAddress) {
+            amount = BigNumber.from(values.amount).mul(BigNumber.from(10).pow(18))
+        }
+        write({args: [amount, date, values.chosenToken, account.address]});
+    }
+
     return (
-        <Flex>
-                <BackButton setIsExistingContract={setIsExistingContract} setIsNewContract={setIsNewContract}/>
-                <Formik
-                    initialValues={{amount: 0, meetupDate: today, chosenToken: daiContractAddress}}
-                    validationSchema={Yup.object({
-                        amount: Yup.number()
-                            .required('Required')
-                            .min(1, 'Please enter a greater than zero deposit amount')
-                            .integer('Please enter a whole number'),
-                        meetupDate: Yup.date()
-                            .min(yesterday, 'Please enter a future date.')
-                            .nullable()
-                            .default(undefined)
-                            .required('Please enter a meetup date')
-                        })}
-                        onSubmit={values => {
-                            //Need additional formatting since js uses ms for timestamp and blockchain is in s
-                            const date = parseInt(values.meetupDate.getTime()/1000);
-                            let amount;
-                            if (values.chosenToken === usdcContractAddress) {
-                                amount = BigNumber.from(values.amount).mul(BigNumber.from(10).pow(6))
-                            } else if (values.chosenToken === daiContractAddress) {
-                                amount = BigNumber.from(values.amount).mul(BigNumber.from(10).pow(18))
-                            }
-                            write({args: [amount, date, values.chosenToken, account.address]});
-                        }}
-                    >
-                    {formik =>  (
-                        <Form onSubmit={formik.handleSubmit}>
-                            <VStack>
-                                <InputControl name='amount' label='Deposit Amount'/>
-                                <RadioGroupControl name='chosenToken' label='Deposit Token'>
-                                    <Radio value={daiContractAddress}>Dai</Radio>
-                                    <Radio value={usdcContractAddress}>USDC</Radio>
-                                </RadioGroupControl>
-                                <FormControl isInvalid={formik.errors.meetupDate && formik.touched.meetupDate}>
-                                    <FormLabel>Meetup Date</FormLabel>
-                                    <DatePickerField name='meetupDate'/>
-                                    <FormErrorMessage>{formik.errors.meetupDate}</FormErrorMessage>
-                                </FormControl>
-                                <Button type='submit' isLoading={isLoading || startLoading} loadingText='Creating Contract'>Create Deposit</Button> 
-                            </VStack>
-                        </Form> 
-                    )}
-                </Formik>
-            </Flex> 
+        <Box>
+            <Button onClick={() => {setIsExistingContract(false); setIsNewContract(false)}}>Back</Button>
+            <form onSubmit={form.onSubmit(values => handleSubmit(values))}>
+                <NumberInput 
+                label='Deposit Amount'
+                {...form.getInputProps('amount')}/>
+                <RadioGroup {...form.getInputProps('chosenToken')}>
+                    <Radio 
+                    label='USDC'
+                    value={usdcContractAddress}
+                    />
+                    <Radio 
+                    label='DAI'
+                    value={daiContractAddress}
+                    />
+                </RadioGroup>
+                <DatePicker 
+                    label='Meetup Date'
+                    {...form.getInputProps('meetupDate')}/>
+                <Button type='submit' loading={loading1 || loading2}>Submit</Button>
+            </form>
+            
+        </Box>
+                
     )
 }

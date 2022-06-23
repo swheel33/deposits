@@ -1,6 +1,5 @@
-import { Button } from '@chakra-ui/react';
+import { Button } from '@mantine/core';
 import { useContractWrite, erc20ABI, useWaitForTransaction } from 'wagmi';
-import { BigNumber } from 'ethers';
 
 export default function ApproveInteraction({tokenAddress, depositContractAddress, depositAmount, setDidApprove}) {
     
@@ -21,10 +20,8 @@ export default function ApproveInteraction({tokenAddress, depositContractAddress
         }
     }
     )
-    
-  
-    
+   
     return (  
-        <Button onClick={() => write()} isLoading={loading1 || loading2} loadingText='Approving'>Approve</Button>
+        <Button onClick={() => write()} loading={loading1 || loading2}>Approve</Button>
     )
 }

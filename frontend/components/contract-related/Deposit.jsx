@@ -1,5 +1,4 @@
-import { Button } from "@chakra-ui/react";
-import { useState } from "react";
+import { Button } from '@mantine/core';
 import { useContractWrite, useWaitForTransaction } from "wagmi";
 import depositABI from '../../contracts/Deposit.json'
 
@@ -14,8 +13,7 @@ export default function DepositInteraction({depositContractAddress, setDidDeposi
 
     const { isLoading: loading2 } = useWaitForTransaction({
         hash: data?.hash,
-        onSuccess(data) {
-            console.log(data)
+        onSuccess() {
             setDidDeposit(true)
         }
     }
@@ -23,6 +21,6 @@ export default function DepositInteraction({depositContractAddress, setDidDeposi
     
     
     return (
-        <Button onClick={() => write()} isLoading={loading1 || loading2} loadingText='Depositing'>Deposit</Button>
+        <Button onClick={() => write()} loading={loading1 || loading2}>Deposit</Button>
     )
 }

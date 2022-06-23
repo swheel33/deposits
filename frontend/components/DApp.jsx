@@ -1,14 +1,15 @@
-import { Box, Flex, Button, Center, Text } from '@chakra-ui/react'
 import ExistingContractForm from './forms/ExistingContractForm';
-import Navbar from './Navbar'
-import Footer from './Footer'
+import AppHeader from './AppHeader'
+import AppFooter from './AppFooter'
 import NewContractForm from './forms/NewContractForm';
 import { useEffect, useState } from 'react';
 import depositFactoryABI from '../contracts/DepositFactory.json'
 import DepositContractInstance from './contract-related/DepositContractInstance'
 import depositABI from '../contracts/Deposit.json';
 import About from './About'
-import { useNetwork, useAccount, useEnsName, useContractRead, useContract } from 'wagmi';
+import { useNetwork, useAccount } from 'wagmi';
+import { Button, Box, Text, Container} from '@mantine/core'
+
 
 export default function DApp() {
     
@@ -40,71 +41,51 @@ export default function DApp() {
     const [isExistingContract, setIsExistingContract] = useState(false)
     const [newlyCreated, setNewlyCreated] = useState(false);
 
-
-
-    const [daiTokenContract, setDaiTokenContract] = useState();
-    const [USDCTokenContract, setUSDCTokenContract] = useState();
-    const [tetherTokenContract, setTetherTokenContract] = useState();
-
-
     return (
-       
-        <Box h='100vh' w='100vw'>
-            <Navbar 
-                isCorrectChain={isCorrectChain}
-                setIsAbout={setIsAbout}/>
-            <Box p='0 1rem' pos='relative' top={['5rem','8rem']}>
-                <Box h='200%'>
+       <Container fluid={true}>
+            <AppHeader setIsAbout={setIsAbout}/>
+                <Box>
                     {isAbout && <About 
                             setIsAbout={setIsAbout}
-                            daiTokenContract={daiTokenContract}
-                            USDCTokenContract={USDCTokenContract}
-                            tetherTokenContract={tetherTokenContract}
-                            account={account}
-                            isCorrectChain={isCorrectChain}
                             />}
                 </Box>
-                {(!account && !isAbout) && <Center><Text fontSize={['xl','3xl']}>Please connect your wallet to access this DApp</Text></Center>}
-                {(account && !isCorrectChain && !isAbout) && <Center><Text fontSize={['xl','3xl']}>Please connect to the Goerli test network to use this app</Text></Center>}
-                {(isCorrectChain && !isAbout) && <Flex h='80%' align='center' direction='column'>
-                    {(!isNewContract && !isExistingContract &&!isAbout) && <Flex>
-                        <Text>Welcome to SafeDeposits! <br/> If you've been sent here by
-                            a seller click the "Use Existing Deposit Contract" button and enter the contract
-                            address you were given.
-                        </Text>
-                    </Flex> }
-                    {(!isNewContract && !isExistingContract && !isAbout) && <Flex h='20%' w='100%' align='center' justify='space-evenly' direction={['column', 'row']}>
-                        <Button onClick={() => setIsNewContract(true)} m='1rem'>Create New Deposit Contract</Button>
-                        <Button onClick={() => setIsExistingContract(true)}>Use Existing Deposit Contract</Button>
-                    </Flex>}
-                    {(!newContractAddress && isNewContract && !isAbout) && <NewContractForm 
-                                                                    depositFactoryAddress={depositFactoryAddress}
-                                                                    depositFactoryABI={depositFactoryABI.abi}
-                                                                    usdcContractAddress={usdcContractAddress}
-                                                                    daiContractAddress={daiContractAddress}
-                                                                    account={account} 
-                                                                    setNewContractAddress={setNewContractAddress}
-                                                                    setIsExistingContract={setIsExistingContract}
-                                                                    setIsNewContract={setIsNewContract}
-                                                                    setNewlyCreated={setNewlyCreated}/>}
-                    {(!newContractAddress && isExistingContract && !isAbout) && <ExistingContractForm 
-                                                                        depositFactoryAddress={depositFactoryAddress} 
+                {(!account && !isAbout) && <Text>Please connect your wallet to access this DApp</Text>}
+                {(account && !isCorrectChain && !isAbout) && <Text >Please connect to the Goerli test network to use this app</Text>}
+                    {(isCorrectChain && !isAbout) && <Box>
+                        {(!isNewContract && !isExistingContract &&!isAbout) && <Box>
+                            <Text>Welcome to SafeDeposits! <br/> If you've been sent here by
+                                a seller click the "Use Existing Deposit Contract" button and enter the contract
+                                address you were given.
+                            </Text>
+                        </Box> }
+                        {(!isNewContract && !isExistingContract && !isAbout) && <Box>
+                            <Button onClick={() => setIsNewContract(true)}>Create New Deposit Contract</Button>
+                            <Button onClick={() => setIsExistingContract(true)}>Use Existing Deposit Contract</Button>
+                        </Box>}
+                        {(!newContractAddress && isCorrectChain && isNewContract && !isAbout) && <NewContractForm 
+                                                                        depositFactoryAddress={depositFactoryAddress}
                                                                         depositFactoryABI={depositFactoryABI.abi}
+                                                                        usdcContractAddress={usdcContractAddress}
+                                                                        daiContractAddress={daiContractAddress}
+                                                                        account={account} 
                                                                         setNewContractAddress={setNewContractAddress}
                                                                         setIsExistingContract={setIsExistingContract}
                                                                         setIsNewContract={setIsNewContract}
-                                                                        />}
-                    {(newContractAddress && !isAbout) && <DepositContractInstance 
-                                                            depositContractAddress={newContractAddress}
-                                                            depositContractABI={depositABI.abi}
-                                                            account={account}
-                                                            newlyCreated={newlyCreated}/>}
-                </Flex>} 
-            </Box>
-            <Footer />
-        </Box> 
-       
-        
-        
+                                                                        setNewlyCreated={setNewlyCreated}/>}
+                        {(!newContractAddress && isExistingContract && !isAbout) && <ExistingContractForm 
+                                                                            depositFactoryAddress={depositFactoryAddress} 
+                                                                            depositFactoryABI={depositFactoryABI.abi}
+                                                                            setNewContractAddress={setNewContractAddress}
+                                                                            setIsExistingContract={setIsExistingContract}
+                                                                            setIsNewContract={setIsNewContract}
+                                                                            />}
+                        {(newContractAddress && !isAbout) && <DepositContractInstance 
+                                                                depositContractAddress={newContractAddress}
+                                                                depositContractABI={depositABI.abi}
+                                                                account={account}
+                                                                newlyCreated={newlyCreated}/>}
+                </Box>} 
+            <AppFooter />
+       </Container> 
     )
 }

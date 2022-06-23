@@ -1,23 +1,24 @@
-import { Button } from "@chakra-ui/react";
-import { useState } from "react";
+import { Button } from '@mantine/core';
+import depositABI from '../../contracts/Deposit.json';
 
-export default function ContestInteraction({depositContract, setDidContest}) {
-    const [loading, setLoading] = useState(false);
-    
-    const handleContestItem = async () => {
-        try {
-            setLoading(true);
-            const tx = await depositContract.contestItem();
-            await tx.wait();
-            setDidContest(true);
-            console.log('Deposit contest successful. Deposit returned to buyer')
-        } catch (error) {
-            console.log(error);
-            setLoading(false);
+export default function ContestInteraction({depositContractAddress, setDidContest}) {
+
+    const { write, data, isLoading: loading1 } = useContractWrite({
+        addressOrName: depositContractAddress,
+        contractInterface: depositABI.abi,
+    },
+    'contestItem',
+    )
+
+    const { isLoading: loading2 } = useWaitForTransaction({
+        hash: data?.hash,
+        onSuccess() {
+            setDidContest(true)
         }
     }
+    )
     
     return (
-        <Button onClick={handleContestItem} isLoading={loading} loadingText='Contesting'>Contest Item</Button>
+        <Button onClick={() => write()} loading={loading1 || loading2}>Contest Item</Button>
     )
 }

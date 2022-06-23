@@ -1,66 +1,14 @@
-import { Button, Box, Flex, Heading, ListItem, OrderedList, Text, VStack, HStack, Link, Center } from "@chakra-ui/react";
-import { useState } from "react";
-import { BigNumber } from "ethers";
+import { Button, Text, List, Box, Stack, Group, Container } from '@mantine/core'
 
-export default function About({setIsAbout, daiTokenContract, USDCTokenContract, tetherTokenContract, account, isCorrectChain}) {
-    //I was having issues with the accounts not working being passed down 2 levels so the faucet stuff is here instead of a separate component
-    const [loadingDai, setLoadingDai] = useState(false);
-    const [loadingUSDC, setLoadingUSDC] = useState(false);
-    const [loadingTether, setLoadingTether] = useState(false);
-    
-    //Big number handling to get 1000 tokens for the Dai contract mint
-    let oneThousandDai = BigNumber.from("10");
-    oneThousandDai = oneThousandDai.pow(21);
-
-    let oneThousandOther = BigNumber.from('10');
-    oneThousandOther = oneThousandOther.pow(9);
-
-
-    const daiMint = async () => {
-        try {
-            setLoadingDai(true)
-            const response = await daiTokenContract.mint(account.address, oneThousandDai);
-            await response.wait();
-            setLoadingDai(false)
-        } catch (error) {
-            console.log(error);
-            setLoadingDai(false);
-        }
-    }
-
-    const usdcMint = async () => {
-        try {
-            setLoadingUSDC(true)
-            const response = await USDCTokenContract.mint(account.address, oneThousandOther);
-            await response.wait();
-            setLoadingUSDC(false)
-        } catch (error) {
-            console.log(error);
-            setLoadingUSDC(false);
-        }
-    }
-
-    const tetherMint = async () => {
-        try {
-            setLoadingTether(true)
-            const response = await tetherTokenContract.mint(account.address, oneThousandOther);
-            await response.wait();
-            setLoadingTether(false)
-        } catch (error) {
-            console.log(error);
-            setLoadingTether(false);
-        }
-    }
+export default function About({ setIsAbout }) {
     
     return (
-        <Flex p={['0 1rem', '0 2rem']} w='100%' direction='column' >
-            <Flex align='center' pb={['1rem', '2rem']} >
-                <Button onClick={() => setIsAbout(false)} size={['sm', 'lg']}>Back</Button>
-                <Center w={['65%', '85%']}><Text fontSize={['xl', '4xl']} fontWeight='bold'>About</Text></Center>
-            </Flex>
-            <Flex justify='center' w='100%' fontSize={['sm', 'lg']}>
-                <VStack w={{lg: '80%', sm: '100%'}}>
-                    
+        <Container fluid={true}>
+            <Group>
+                <Button onClick={() => setIsAbout(false)}>Back</Button>
+                <Text weight={700}>About</Text>
+            </Group>
+                <Stack>
                     <Text >
                         Welcome to my SafeDeposit App! This app is built for for purpose of handling Facebook Marketplace deposits.
                         A usually schemy environment fraught with fraud, SafeDeposits attempts to reign in part of that by handling deposits
@@ -73,42 +21,42 @@ export default function About({setIsAbout, daiTokenContract, USDCTokenContract, 
                         <br /> <br />
                         SafeDeposits handles this interaction using a series of steps:
                     </Text>
-                    <Box w='100%'>
-                        <OrderedList>
-                            <ListItem >
+                    <Box>
+                        <List>
+                            <List.Item >
                                 The Seller navigates to this website and clicks the Create New Deposit Contract button, then 
                                 selects the amount he/she would like the buyer to deposit, the type of coin the deposit
                                 should be in, and the agreed upon date for the seller and buyer to meetup to complete the 
                                 transaction
-                            </ListItem>
-                            <ListItem>
+                            </List.Item>
+                            <List.Item>
                                 The Seller saves the contract address that is given upon completing the previous step and sends 
                                 that information to the Buyer along with this website address.
-                            </ListItem>
-                            <ListItem>
+                            </List.Item>
+                            <List.Item>
                                 The Buyer navigates to this website and clicks the Use Existing Deposit Contract button and enters
                                 the contract address that they were given by the seller.
-                            </ListItem>
-                            <ListItem>
+                            </List.Item>
+                            <List.Item>
                                 Once the contract has loaded the buyer will approve the contract instance to access to the amount
                                 requested by the Seller (no infinite approvals here), and then complete the deposit.
-                            </ListItem>
-                            <ListItem>
+                            </List.Item>
+                            <List.Item>
                                 After the Buyer deposits the funds (which the seller can confirm at any time by accessing the contract instance
                                 the same way the buyer would), the two parties wait until the agreed upon date.
-                            </ListItem>
-                            <ListItem>
+                            </List.Item>
+                            <List.Item>
                                 When the agreed upon date arrives, the Buyer has the opportunity to contest the deposit if the item is not as 
                                 described by the seller. This can be done through the UI, accessing the contract instance the same way the Buyer 
                                 deposited his/her funds.
-                            </ListItem>
-                            <ListItem>
+                            </List.Item>
+                            <List.Item>
                                 If 24 hours pass from the agreed upon date (ie the start of the next day) the Buyer will no longer be able to contest the 
                                 deposit and the Seller can claim their funds (after hopefully meeting up with the Buyer to sell the item as well).
-                            </ListItem>
+                            </List.Item>
                             <br />
-                        </OrderedList>
-                        <Text fontSize={['xl', '3xl']} fontWeight='bold'>Contesting Game Theory</Text>
+                        </List>
+                        <Text weight={700}>Contesting Game Theory</Text>
                         <Text>
                             The contesting process can only by done during the agreed upon date and only by the Buyer. 
                             If a Buyer contests the deposit, the Buyer is returned the funds no questions asked. This provides a safeguard against
@@ -121,31 +69,17 @@ export default function About({setIsAbout, daiTokenContract, USDCTokenContract, 
                             with the sale.
                             <br /> <br />
                         </Text>
-                        <Text fontSize={['xl', '3xl']} fontWeight='bold'>App Notes</Text>
+                        <Text weight={700}>App Notes</Text>
                         <Text>
                             First of all if you've made it through the wall of text, bravo. Now since this app is just a portfolio project (code availible <span></span>
-                             <Link isExternal color='blue' href='https://github.com/swheel33/deposits'>here</Link> and from the github logo in the footer) and not meant for production, this app is deployed on the Rinkeby Testnet. Verified contract
-                             address <Link isExternal color='blue' href='https://rinkeby.etherscan.io/address/0xAEA66E013CDA1e8675eA757cD9ADDA4b466578Dd'>here</Link>.
+                             <a target='_blank' href='https://github.com/swheel33/deposits'>here</a> and from the github logo in the footer) and not meant for production, this app is deployed on the Goerli Testnet. Verified contract
+                             address <a target='_blank' href='https://goerli.etherscan.io/address/0x787662aa7847533E04516Db00D31933b14A1D195'>here</a>.
                              I didn't deploy it on the Mainnet or even Arbitrum because no one wants to pay fees while they are testing out someone else's work.
-                            I've linked some faucets below to get any of the tokens accepted by the app (Dai, USDC, Tether) on the fairly likely 
-                            chance that you don't have a wallet with Rinkeby ported ERC20 tokens. <br /> <br />
+                            Faucet for the ERC20 ported tokens is at <a target='_blank' href='https://app.compound.finance/'>https://app.compound.finance/</a>. 
+                            Connect to the Goerli testnet and click withdraw on either USDC/DAI to get tokens.<br /> <br /> <br /> <br />
                         </Text>
-                        <Flex>
-                            
-                            {(!account || !isCorrectChain) && <Text fontWeight='bold'>Please connect wallet to Rinkeby Testnet to use faucet</Text>}
-                            {(account && isCorrectChain) && <Flex>
-                                            <HStack>
-                                                <Button onClick={daiMint} isLoading={loadingDai} loadingText='Minting Dai'>Mint 1000 Dai</Button>
-                                                <Button onClick={usdcMint} isLoading={loadingUSDC} loadingText='Minting USDC'>Mint 1000 USDC</Button>
-                                                <Button onClick={tetherMint} isLoading={loadingTether} loadingText='Minting Tether'>Mint 1000 Tether</Button>
-                                            </HStack>
-                                        </Flex>}
-                                        {/*My css needs work I know*/}
-                                        <br /> <br /><br /> <br />
-                        </Flex>
                     </Box>
-                </VStack>
-            </Flex>
-        </Flex>
+                </Stack>
+            </Container>
     )
 }
