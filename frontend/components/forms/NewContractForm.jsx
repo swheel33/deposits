@@ -1,4 +1,4 @@
-import { Box, Button, NumberInput, RadioGroup, Radio } from '@mantine/core';
+import { Box, Button, NumberInput, RadioGroup, Radio, Container, Stack } from '@mantine/core';
 import { DatePicker } from '@mantine/dates'
 import { useContractWrite, useWaitForTransaction } from "wagmi";
 import { BigNumber } from "ethers";
@@ -53,29 +53,28 @@ export default function NewContractForm({depositFactoryAddress, depositFactoryAB
     }
 
     return (
-        <Box>
-            <Button onClick={() => {setIsExistingContract(false); setIsNewContract(false)}}>Back</Button>
-            <form onSubmit={form.onSubmit(values => handleSubmit(values))}>
-                <NumberInput 
-                label='Deposit Amount'
-                {...form.getInputProps('amount')}/>
-                <RadioGroup {...form.getInputProps('chosenToken')}>
-                    <Radio 
-                    label='USDC'
-                    value={usdcContractAddress}
-                    />
-                    <Radio 
-                    label='DAI'
-                    value={daiContractAddress}
-                    />
-                </RadioGroup>
-                <DatePicker 
-                    label='Meetup Date'
-                    {...form.getInputProps('meetupDate')}/>
-                <Button type='submit' loading={loading1 || loading2}>Submit</Button>
-            </form>
-            
-        </Box>
+            <Container>
+                <form onSubmit={form.onSubmit(values => handleSubmit(values))}>
+                    <NumberInput 
+                    label='Deposit Amount'
+                    {...form.getInputProps('amount')} mb='1rem'/>
+                    <RadioGroup {...form.getInputProps('chosenToken')} mb='1rem'>
+                        <Radio 
+                        label='USDC'
+                        value={usdcContractAddress}
+                        />
+                        <Radio 
+                        label='DAI'
+                        value={daiContractAddress}
+                        />
+                    </RadioGroup>
+                    <DatePicker 
+                        label='Meetup Date'
+                        {...form.getInputProps('meetupDate')} mb='1rem'/>
+                    <Button hidden={loading1 || loading2} onClick={() => {setIsExistingContract(false); setIsNewContract(false)}} mr='1rem'>Back</Button>
+                    <Button type='submit' loading={loading1 || loading2}>Submit</Button>
+                </form>
+            </Container>
                 
     )
 }

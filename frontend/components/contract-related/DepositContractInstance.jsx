@@ -1,4 +1,4 @@
-import { Box, Title } from '@mantine/core';
+import { Container, Stack, Title } from '@mantine/core';
 import { useState, useEffect } from "react";
 import ContractInfo from "./ContractInfo";
 import TokenContractInstance from './TokenContractInstance';
@@ -149,10 +149,10 @@ export default function DepositContractInstance({depositContractAddress, deposit
     },[depositAmount, deadline, agreedDate, contractState]) 
     
     return (
-        <Box>
+        <Container style={{borderWidth: '0.2rem', borderColor: 'white', borderStyle: 'solid', borderRadius: '2rem'}} p='1rem'>
             {isLoading && <Title>Loading...</Title>}
             {!isLoading && 
-                <Box>
+                <Stack>
                     <ContractInfo 
                         didContest={didContest} 
                         didClaim={didClaim}
@@ -181,7 +181,7 @@ export default function DepositContractInstance({depositContractAddress, deposit
                         account={account}
                         provider={provider}
                         /> 
-                </Box> }                 
-        </Box>
+                </Stack> }                 
+        </Container>
     )
 }

@@ -18,7 +18,8 @@ export default function App(props: AppProps) {
         withGlobalStyles
         withNormalizeCSS
         defaultProps={{
-          Button: {size: smallScreen ? 'sm' : 'xl',}
+          Button: {size: smallScreen ? 'sm' : 'lg'},
+          Container: {fluid: true}
         }}
       >
         <Component {...pageProps} />

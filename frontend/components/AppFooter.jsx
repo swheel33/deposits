@@ -3,7 +3,7 @@ import { IconBrandGithub } from '@tabler/icons';
 
 export default function AppFooter() {
     return (
-            <Footer fluid={true} >
+            <Footer p='.5rem' mt='1rem'>
                 <Group position="center">
                     <Text>SafeDeposit: A Portfolio Project by Samuel Wheeler</Text>
                     <a href='https://github.com/swheel33/deposits' target='_blank'>

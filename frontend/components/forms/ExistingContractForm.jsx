@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useContract, useProvider } from "wagmi";
-import { Box, Button, TextInput } from '@mantine/core';
+import { Box, Button, Container, Stack, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 
 export default function ExistingContractForm({depositFactoryAddress, depositFactoryABI,
@@ -43,15 +43,15 @@ export default function ExistingContractForm({depositFactoryAddress, depositFact
     }
 
     return (
-     <Box>
-        <Button onClick={() => {setIsExistingContract(false); setIsNewContract(false)}}>Back</Button>
-        <form onSubmit={form.onSubmit(values => handleSubmit(values))}>
-            <TextInput 
-            placeholder='0x...'
-            {...form.getInputProps('contractAddress')}/>
-            <Button type='submit'>Submit</Button>
-        </form>
-     </Box>
+     <Container>
+            <form onSubmit={form.onSubmit(values => handleSubmit(values))}>
+                <TextInput 
+                placeholder='0x...'
+                {...form.getInputProps('contractAddress')} mb='1rem'/>
+                <Button onClick={() => {setIsExistingContract(false); setIsNewContract(false)}} mr='1rem'>Back</Button>
+                <Button type='submit'>Submit</Button>
+            </form>
+     </Container>
 
     )
 }
