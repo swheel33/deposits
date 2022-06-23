@@ -5,12 +5,13 @@ import * as Yup from 'yup'
 import DatePickerField from "./DatePickerField";
 import BackButton from "./BackButton";
 import { useContractWrite, useWaitForTransaction } from "wagmi";
+import { BigNumber } from "ethers";
 
 
 
 export default function NewContractForm({depositFactoryAddress, depositFactoryABI, account, 
-    setNewContractAddress, setIsNewContract, setIsExistingContract, setNewlyCreated, setChosenToken,
-    daiContractAddress, usdcContractAddress, tetherContractAddress}) {
+    setNewContractAddress, setIsNewContract, setIsExistingContract, setNewlyCreated,
+    daiContractAddress, usdcContractAddress}) {
     const today = new Date();
     let yesterday = new Date();
     yesterday.setDate(today.getDate() - 1);
@@ -33,18 +34,6 @@ export default function NewContractForm({depositFactoryAddress, depositFactoryAB
       }
       );
 
-    const determineChosenToken = chosenTokenAddress => {
-        if (chosenTokenAddress === daiContractAddress) {
-            return 'Dai';
-        } else if (chosenTokenAddress === usdcContractAddress) {
-            return 'USDC';
-        } else if (chosenTokenAddress === tetherContractAddress) {
-            return 'Tether'
-        } else {
-            return null
-        }
-    }
-
     return (
         <Flex>
                 <BackButton setIsExistingContract={setIsExistingContract} setIsNewContract={setIsNewContract}/>
@@ -64,8 +53,13 @@ export default function NewContractForm({depositFactoryAddress, depositFactoryAB
                         onSubmit={values => {
                             //Need additional formatting since js uses ms for timestamp and blockchain is in s
                             const date = parseInt(values.meetupDate.getTime()/1000);
-                            write({args: [values.amount, date, values.chosenToken, account.address]});
-                            setChosenToken(determineChosenToken(values.chosenToken));
+                            let amount;
+                            if (values.chosenToken === usdcContractAddress) {
+                                amount = BigNumber.from(values.amount).mul(BigNumber.from(10).pow(6))
+                            } else if (values.chosenToken === daiContractAddress) {
+                                amount = BigNumber.from(values.amount).mul(BigNumber.from(10).pow(18))
+                            }
+                            write({args: [amount, date, values.chosenToken, account.address]});
                         }}
                     >
                     {formik =>  (
@@ -75,7 +69,6 @@ export default function NewContractForm({depositFactoryAddress, depositFactoryAB
                                 <RadioGroupControl name='chosenToken' label='Deposit Token'>
                                     <Radio value={daiContractAddress}>Dai</Radio>
                                     <Radio value={usdcContractAddress}>USDC</Radio>
-                                    <Radio value={tetherContractAddress}>Tether</Radio>
                                 </RadioGroupControl>
                                 <FormControl isInvalid={formik.errors.meetupDate && formik.touched.meetupDate}>
                                     <FormLabel>Meetup Date</FormLabel>

@@ -6,17 +6,16 @@ import { useContractRead, useContract, useProvider } from "wagmi";
 
 
 export default function DepositContractInstance({depositContractAddress, depositContractABI,
-     account, newlyCreated, daiContractAddress,
-    usdcContractAddress, tetherContractAddress, setChosenToken}) {
+     newlyCreated, account }) {
     //State variable declaration to track progress
-    const [didDeposit, setDidDeposit] = useState(false);
-    const [didApprove, setDidApprove] = useState(false);
+    
     const [didContest, setDidContest] = useState(false);
     const [didClaim, setDidClaim] = useState(false);
     const [contestEligible, setContestEligible] = useState(false);
+    const [didDeposit, setDidDeposit] = useState(false);
+    const [didApprove, setDidApprove] = useState(false);
     const [claimEligible, setClaimEligible] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
-    
     const provider = useProvider();
 
     //Deposit contract 
@@ -50,7 +49,7 @@ export default function DepositContractInstance({depositContractAddress, deposit
         }
     }
 
-    //This section isLoading getting info from the smart contract itself
+    //getting info from the smart contract
   
     const { data: agreedDate } = useContractRead({
         addressOrName: depositContractAddress,
@@ -59,7 +58,6 @@ export default function DepositContractInstance({depositContractAddress, deposit
     'getAgreedDate',
     )
 
-
     const { data: depositAmount } = useContractRead({
         addressOrName: depositContractAddress,
         contractInterface: depositContractABI
@@ -67,7 +65,6 @@ export default function DepositContractInstance({depositContractAddress, deposit
     'getDepositValue',
     )
     
-
     const { data: deadline } = useContractRead({
         addressOrName: depositContractAddress,
         contractInterface: depositContractABI
@@ -105,7 +102,7 @@ export default function DepositContractInstance({depositContractAddress, deposit
 
     const getContestEligibility = async () => {
         try {
-            if (didDeposit && agreedDate) {
+            if (agreedDate) {
                 const now = new Date();
                 const agreedDateJS = new Date(agreedDate*1000);
                 const deadlineJS = new Date(deadline*1000);
@@ -118,7 +115,7 @@ export default function DepositContractInstance({depositContractAddress, deposit
 
     const getClaimEligibility = async () => {
         try {
-            if(!didContest && didDeposit && deadline) {
+            if(!didContest && deadline) {
                 const now = new Date();
                 const deadlineJS = new Date(deadline*1000);
                 setClaimEligible(now > deadline);
@@ -154,39 +151,37 @@ export default function DepositContractInstance({depositContractAddress, deposit
     return (
         <Box>
             {isLoading && <Heading>Loading...</Heading>}
-            
-                {!isLoading && 
-                    <Box>
-                        <ContractInfo 
-                            didApprove={didApprove}
-                            didDeposit={didDeposit} 
-                            didContest={didContest} 
-                            didClaim={didClaim}
-                            contractState={contractState}
-                            depositContractAddress={depositContractAddress}
-                            depositAmount={depositAmount}
-                            tokenAddress={tokenAddress}
-                            agreedDate={agreedDate}
-                            buyer={buyer}
-                            seller={seller}
-                            newlyCreated={newlyCreated}
-                            />
-                        <TokenContractInstance 
-                            tokenAddress={tokenAddress}
-                            didApprove={didApprove}
-                            didDeposit={didDeposit} 
-                            setDidApprove={setDidApprove}
-                            setDidDeposit={setDidDeposit}
-                            depositContractAddress={depositContractAddress}
-                            account={account}
-                            deadline={deadline}
-                            agreedDate={agreedDate}
-                            newlyCreated={newlyCreated}
-                            claimEligible={claimEligible}
-                            contestEligible={contestEligible}
-                            /> 
-                    </Box> }
-                                 
+            {!isLoading && 
+                <Box>
+                    <ContractInfo 
+                        didContest={didContest} 
+                        didClaim={didClaim}
+                        contractState={contractState}
+                        depositContractAddress={depositContractAddress}
+                        depositAmount={depositAmount}
+                        tokenAddress={tokenAddress}
+                        agreedDate={agreedDate}
+                        buyer={buyer}
+                        seller={seller}
+                        newlyCreated={newlyCreated}
+                        />
+                    <TokenContractInstance 
+                        tokenAddress={tokenAddress}
+                        setDidDeposit={setDidDeposit}
+                        setDidApprove={setDidApprove}
+                        didDeposit={didDeposit}
+                        didApprove={didApprove}
+                        depositContractAddress={depositContractAddress}
+                        deadline={deadline}
+                        depositAmount={depositAmount}
+                        agreedDate={agreedDate}
+                        newlyCreated={newlyCreated}
+                        claimEligible={claimEligible}
+                        contestEligible={contestEligible}
+                        account={account}
+                        provider={provider}
+                        /> 
+                </Box> }                 
         </Box>
     )
 }

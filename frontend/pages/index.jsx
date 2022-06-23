@@ -20,7 +20,7 @@ export default function Home() {
   const { chains, provider } = configureChains(
     defaultChains,
     [
-      alchemyProvider({ alchemyId: process.env.RINKEBY_API_KEY }),
+      alchemyProvider({ alchemyId: process.env.GOERLI_API_KEY }),
       publicProvider()
     ]
   );

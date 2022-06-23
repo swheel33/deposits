@@ -1,15 +1,12 @@
-import { useContract, useProvider, erc20ABI } from "wagmi"
-import { useEffect } from "react";
+import { useContract, useProvider, erc20ABI, useAccount } from "wagmi"
+import { useEffect, useState } from "react";
 import { Box } from "@chakra-ui/react";
 import ContractInteraction from "./ContractInteraction";
 
-export default function TokenContractInstance(tokenAddress, 
-    didApprove, newlyCreated,
-    didDeposit,
+export default function TokenContractInstance({tokenAddress, 
+    newlyCreated, setDidDeposit, setDidApprove, didDeposit, didApprove,
     didContest,
     didClaim,
-    setDidApprove,
-    setDidDeposit,
     setDidContest,
     setDidClaim,
     depositContract,
@@ -18,11 +15,10 @@ export default function TokenContractInstance(tokenAddress,
     seller,
     claimEligible,
     contestEligible,
-    depositAmount,
-    account) {
+    depositAmount, account, provider
+}) {
 
     //ERC20 token contract
-    const provider = useProvider();
     const tokenContract = useContract({
         addressOrName: tokenAddress,
         contractInterface: erc20ABI,
@@ -34,7 +30,7 @@ export default function TokenContractInstance(tokenAddress,
         try {
             const filter = tokenContract.filters.Approval([account.address]);
             const event = await tokenContract.queryFilter(filter);
-            const approvals = event.map(event => event.args.spender)
+            const approvals = event.map(event => event.args._spender)
             setDidApprove(approvals.includes(depositContractAddress))
         } catch (error) {
             console.log('This account has not yet approved')
@@ -71,7 +67,7 @@ export default function TokenContractInstance(tokenAddress,
                 setDidDeposit={setDidDeposit}
                 setDidContest={setDidContest}
                 setDidClaim={setDidClaim}
-                tokenContract={tokenContract}
+                tokenAddress={tokenAddress}
                 depositContract={depositContract}
                 depositContractAddress={depositContractAddress}
                 buyer={buyer}

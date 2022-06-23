@@ -1,23 +1,21 @@
 import { Box, Text } from '@chakra-ui/react';
+import { BigNumber } from 'ethers';
 import { useEffect, useState } from 'react';
 import { useToken } from 'wagmi';
 
 
 
-export default function ContractInfo({didApprove, didDeposit, didContest, didClaim, contractState,
+export default function ContractInfo({didContest, didClaim, contractState,
     depositContractAddress, depositAmount, agreedDate, buyer, seller, newlyCreated, tokenAddress
     }) {
-    const [amountReadable, setAmountReadable] = useState();
     const [status, setStatus] = useState();
 
     //const agreedDateReadable = new Date(agreedDate*1000).toDateString();
     //const depositAmountReadable = depositAmount.toString();
 
     const getStatus = () => {
-        if (!didApprove && !didDeposit && contractState=='Created') {
+        if (contractState=='Created') {
             setStatus('Created');
-        } else if (didApprove && !didDeposit && contractState=='Created') {
-            setStatus('Allowance Approved');
         } else if (contractState=='Locked') {
             setStatus('Deposit Completed');
         } else if (didContest) {
@@ -31,10 +29,22 @@ export default function ContractInfo({didApprove, didDeposit, didContest, didCla
         address: tokenAddress,
     })
 
+    const numberHandling = () => {
+        if (token?.symbol === 'DAI') {
+            depositAmount = BigNumber.from(depositAmount).div(BigNumber.from(10).pow(18)).toString();
+        } else if (token?.symbol === 'USDC') {
+            depositAmount = BigNumber.from(depositAmount).div(BigNumber.from(10).pow(6)).toString();
+        }
+    }
+
 
     useEffect(() => {
         getStatus();
-    },[didApprove, didDeposit, didContest, didClaim, contractState])
+    },[didContest, didClaim, contractState])
+
+    useEffect(() => {
+        numberHandling()
+    },[token])
 
 
     return (
@@ -46,7 +56,7 @@ export default function ContractInfo({didApprove, didDeposit, didContest, didCla
             {newlyCreated && <br/>}
             <Text>Contract Status: {status}</Text>
             <Text>Contract Address: {depositContractAddress}</Text>
-            <Text>Deposit Amount: {depositAmount.toString()} {token?.symbol}</Text>
+            <Text>Deposit Amount: {depositAmount} {token?.symbol}</Text>
             <Text>Agreed Date: {new Date(agreedDate*1000).toDateString()}</Text>
             {contractState=='Locked' && <br/>}
             {contractState=='Locked' && <Text>

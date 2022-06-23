@@ -1,23 +1,30 @@
-import { Button, Box, Text } from '@chakra-ui/react';
-import { useState } from "react";
+import { Button } from '@chakra-ui/react';
+import { useContractWrite, erc20ABI, useWaitForTransaction } from 'wagmi';
+import { BigNumber } from 'ethers';
 
-export default function ApproveInteraction({tokenContract, depositContractAddress, depositAmount, setDidApprove}) {
-    const [loading, setLoading] = useState(false);
+export default function ApproveInteraction({tokenAddress, depositContractAddress, depositAmount, setDidApprove}) {
     
-    const handleApprove = async () => {
-        try {
-            setLoading(true)
-            const tx = await tokenContract.approve(depositContractAddress, depositAmount);
-            await tx.wait();
-            setDidApprove(true);
-            console.log('Successful Approval!');
-        } catch (error) {
-            console.log(error)
-            setLoading(false)
+    const { write, data, isLoading: loading1 } = useContractWrite({
+        addressOrName: tokenAddress,
+        contractInterface: erc20ABI,
+    },
+    'approve',
+    {
+        args: [depositContractAddress, depositAmount]
+    }
+    )
+
+    const { isLoading: loading2 } = useWaitForTransaction({
+        hash: data?.hash,
+        onSuccess() {
+            setDidApprove(true)
         }
     }
+    )
+    
+  
     
     return (  
-        <Button onClick={handleApprove} isLoading={loading} loadingText='Approving'>Approve</Button>
+        <Button onClick={() => write()} isLoading={loading1 || loading2} loadingText='Approving'>Approve</Button>
     )
 }
