@@ -7,8 +7,8 @@ import { useContractRead, useContract, useProvider } from "wagmi";
 
 export default function DepositContractInstance({depositContractAddress, depositContractABI,
      newlyCreated, account }) {
-    //State variable declaration to track progress
     
+    //State variable declaration to track progress
     const [didContest, setDidContest] = useState(false);
     const [didClaim, setDidClaim] = useState(false);
     const [contestEligible, setContestEligible] = useState(false);
