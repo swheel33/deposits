@@ -1,10 +1,9 @@
-import { useContract, useProvider, erc20ABI, useAccount } from "wagmi"
-import { useEffect, useState } from "react";
-import { Box } from '@mantine/core';
+import { useContract, erc20ABI } from "wagmi"
+import { useEffect } from "react";
 import ContractInteraction from "./ContractInteraction";
 
 export default function TokenContractInstance({tokenAddress, 
-    newlyCreated, setDidDeposit, setDidApprove, didDeposit, didApprove,
+    setDidDeposit, setDidApprove, didDeposit, didApprove,
     didContest,
     didClaim,
     setDidContest,
@@ -12,12 +11,12 @@ export default function TokenContractInstance({tokenAddress,
     depositContract,
     depositContractAddress,
     buyer,
-    seller,
+    seller, isLoading,
     claimEligible,
     contestEligible,
     depositAmount, account, provider
 }) {
-
+    
     //ERC20 token contract
     const tokenContract = useContract({
         addressOrName: tokenAddress,
@@ -41,7 +40,7 @@ export default function TokenContractInstance({tokenAddress,
         try {
             const filter = tokenContract.filters.Transfer([account.address]);
             const event = await tokenContract.queryFilter(filter);
-            const deposits = event.map(event => event.args.to)
+            const deposits = event.map(event => event.args._to)
             setDidDeposit(deposits.includes(depositContractAddress))
         } catch (error) {
             console.log('This account has not yet deposited')
@@ -57,8 +56,7 @@ export default function TokenContractInstance({tokenAddress,
     },[didDeposit, account])
     
     return (
-        <Box>
-            {!newlyCreated && <ContractInteraction 
+             <ContractInteraction 
                 didApprove={didApprove}
                 didDeposit={didDeposit} 
                 didContest={didContest} 
@@ -75,8 +73,7 @@ export default function TokenContractInstance({tokenAddress,
                 claimEligible={claimEligible}
                 contestEligible={contestEligible}
                 depositAmount={depositAmount}
-                account={account}/> }
-        </Box>
-        
+                isLoading={isLoading}
+                account={account}/>  
     )
 }

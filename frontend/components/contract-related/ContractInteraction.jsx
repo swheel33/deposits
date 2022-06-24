@@ -5,20 +5,24 @@ import Claim from './Claim';
 import { Box } from '@mantine/core';
 
 export default function ContractInteraction({didApprove, didDeposit, didClaim, didContest, setDidApprove,
-     setDidDeposit, setDidContest, setDidClaim, tokenAddress, depositContract, depositContractAddress, account,
-      buyer, seller, claimEligible, contestEligible, depositAmount}) {
+     setDidDeposit, setDidContest, setDidClaim, tokenAddress, depositContractAddress, account,
+      buyer, seller, claimEligible, contestEligible, depositAmount, isLoading}) {
+    
     return (
        <Box>
-            {(!didApprove && !didDeposit) && <Approve 
-                tokenAddress={tokenAddress} 
-                depositContractAddress={depositContractAddress} 
-                depositAmount={depositAmount} 
-                setDidApprove={setDidApprove}
-                />}
-            {(didApprove && !didDeposit) && <Deposit depositContractAddress={depositContractAddress} setDidDeposit={setDidDeposit}/>}
-            {(contestEligible && !didContest && (account.address == buyer)) && <Contest depositContractAddress={depositContractAddress} setDidContest={setDidContest}/>}
-            {(claimEligible && !didClaim && (account.address == seller)) && <Claim depositContractAddress={depositContractAddress} setDidClaim={setDidClaim}/>}
+            {!isLoading && <Box>
+                {(!didApprove && !didDeposit) && <Approve 
+                    tokenAddress={tokenAddress} 
+                    depositContractAddress={depositContractAddress} 
+                    depositAmount={depositAmount} 
+                    setDidApprove={setDidApprove}
+                    />}
+                {(didApprove && !didDeposit) && <Deposit depositContractAddress={depositContractAddress} setDidDeposit={setDidDeposit}/>}
+                {(contestEligible && !didContest && (account?.address == buyer)) && <Contest depositContractAddress={depositContractAddress} setDidContest={setDidContest}/>}
+                {(claimEligible && !didClaim && (account?.address == seller)) && <Claim depositContractAddress={depositContractAddress} setDidClaim={setDidClaim}/>}
+            </Box> }
        </Box>
+       
         
     )
 }

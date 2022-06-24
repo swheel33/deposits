@@ -1,5 +1,6 @@
 import { Button } from '@mantine/core';
 import depositABI from '../../contracts/Deposit.json';
+import { useWaitForTransaction, useContractWrite } from 'wagmi';
 
 export default function ClaimInteraction({depositContractAddress, setDidClaim}) {
     

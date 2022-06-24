@@ -49,7 +49,7 @@ export default function ExistingContractForm({depositFactoryAddress, depositFact
                 placeholder='0x...'
                 {...form.getInputProps('contractAddress')} mb='1rem'/>
                 <Button onClick={() => {setIsExistingContract(false); setIsNewContract(false)}} mr='1rem'>Back</Button>
-                <Button type='submit'>Submit</Button>
+                <Button type='submit' loading={loading}>Submit</Button>
             </form>
      </Container>
 

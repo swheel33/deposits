@@ -46,7 +46,7 @@ export default function DApp() {
        <Container m='0 1rem' >
             <Stack justify='space-between' style={{minHeight: '100vh'}}>
                 <AppHeader setIsAbout={setIsAbout}/>
-                <Container style={{minHeight: '80vh'}}>
+                <Container style={{minHeight: '70vh'}}>
                     {isAbout && <About 
                             setIsAbout={setIsAbout}
                             />}

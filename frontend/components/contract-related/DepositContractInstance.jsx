@@ -12,8 +12,8 @@ export default function DepositContractInstance({depositContractAddress, deposit
     const [didContest, setDidContest] = useState(false);
     const [didClaim, setDidClaim] = useState(false);
     const [contestEligible, setContestEligible] = useState(false);
-    const [didDeposit, setDidDeposit] = useState(false);
-    const [didApprove, setDidApprove] = useState(false);
+    const [didDeposit, setDidDeposit] = useState();
+    const [didApprove, setDidApprove] = useState();
     const [claimEligible, setClaimEligible] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const provider = useProvider();
@@ -106,7 +106,7 @@ export default function DepositContractInstance({depositContractAddress, deposit
                 const now = new Date();
                 const agreedDateJS = new Date(agreedDate*1000);
                 const deadlineJS = new Date(deadline*1000);
-                setContestEligible(now > agreedDate && now < deadlineJS);
+                setContestEligible(now > agreedDateJS && now < deadlineJS);
             }
         } catch (error) {
             console.log(error)
@@ -118,7 +118,7 @@ export default function DepositContractInstance({depositContractAddress, deposit
             if(!didContest && deadline) {
                 const now = new Date();
                 const deadlineJS = new Date(deadline*1000);
-                setClaimEligible(now > deadline);
+                setClaimEligible(now > deadlineJS);
             }
         } catch (error) {
             console.log(error)
@@ -145,15 +145,14 @@ export default function DepositContractInstance({depositContractAddress, deposit
 
 
     useEffect(() => {
-        setIsLoading(!depositAmount || !deadline || !agreedDate || !contractState);
-    },[depositAmount, deadline, agreedDate, contractState]) 
+        setIsLoading(!depositAmount || !deadline || !agreedDate || !contractState || (!newlyCreated && didApprove === undefined) || (!newlyCreated && didDeposit === undefined));
+    },[depositAmount, deadline, agreedDate, contractState, didApprove, didDeposit]) 
     
     return (
         <Container style={{borderWidth: '0.2rem', borderColor: 'white', borderStyle: 'solid', borderRadius: '2rem'}} p='1rem'>
             {isLoading && <Title>Loading...</Title>}
-            {!isLoading && 
                 <Stack>
-                    <ContractInfo 
+                    {!isLoading && <ContractInfo 
                         didContest={didContest} 
                         didClaim={didClaim}
                         contractState={contractState}
@@ -164,11 +163,13 @@ export default function DepositContractInstance({depositContractAddress, deposit
                         buyer={buyer}
                         seller={seller}
                         newlyCreated={newlyCreated}
-                        />
-                    <TokenContractInstance 
+                        /> }
+                    {!newlyCreated && <TokenContractInstance 
                         tokenAddress={tokenAddress}
                         setDidDeposit={setDidDeposit}
                         setDidApprove={setDidApprove}
+                        setDidClaim={setDidClaim}
+                        setDidContest={setDidContest}
                         didDeposit={didDeposit}
                         didApprove={didApprove}
                         depositContractAddress={depositContractAddress}
@@ -176,12 +177,17 @@ export default function DepositContractInstance({depositContractAddress, deposit
                         depositAmount={depositAmount}
                         agreedDate={agreedDate}
                         newlyCreated={newlyCreated}
+                        didContest={didContest}
+                        didClaim={didClaim}
+                        buyer={buyer}
+                        seller={seller}
                         claimEligible={claimEligible}
                         contestEligible={contestEligible}
                         account={account}
                         provider={provider}
-                        /> 
-                </Stack> }                 
+                        isLoading={isLoading}
+                        /> }
+                </Stack>                  
         </Container>
     )
 }
