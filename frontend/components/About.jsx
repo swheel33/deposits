@@ -71,10 +71,10 @@ export default function About({ setIsAbout }) {
                     <Title weight={700}>App Notes</Title>
                     <Text>
                         First of all if you've made it through the wall of text, bravo. Now since this app is just a portfolio project (code availible <span></span>
-                            <Anchor target='_blank' href='https://github.com/swheel33/deposits'>here</Anchor> and from the github logo in the footer) and not meant for production, this app is deployed on the Goerli Testnet. Verified contract
-                            address <Anchor target='_blank' href='https://goerli.etherscan.io/address/0x787662aa7847533E04516Db00D31933b14A1D195'>here</Anchor>.
+                            <Anchor href='https://github.com/swheel33/deposits'>here</Anchor> and from the github logo in the footer) and not meant for production, this app is deployed on the Goerli Testnet. Verified contract
+                            address <Anchor href='https://goerli.etherscan.io/address/0x787662aa7847533E04516Db00D31933b14A1D195'>here</Anchor>.
                             I didn't deploy it on the Mainnet or even Arbitrum because no one wants to pay fees while they are testing out someone else's work.
-                        Faucet for the ERC20 ported tokens is at <Anchor target='_blank' href='https://app.compound.finance/'>https://app.compound.finance/</Anchor>. 
+                        Faucet for the ERC20 ported tokens is at <Anchor href='https://app.compound.finance/'>https://app.compound.finance/</Anchor>. 
                         Connect to the Goerli testnet and click withdraw on either USDC/DAI to get tokens.
                     </Text>
                 </Stack>

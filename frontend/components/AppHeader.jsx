@@ -14,7 +14,7 @@ export default function AppHeader({setIsAbout}) {
                         <ThemeIcon size={smallScreen ? 'sm' : 'xl'} radius='xl'> 
                             <IconShieldLock />
                         </ThemeIcon>
-                        <Anchor href=''><Title>SafeDeposit</Title></Anchor>
+                        <Anchor href='' target=''><Title>SafeDeposit</Title></Anchor>
                         <Button onClick={() => setIsAbout(true)} sx={(theme) => ({
                             backgroundColor: theme.colors.dark[7]
                         })}>About</Button>

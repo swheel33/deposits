@@ -2,6 +2,7 @@ import { AppProps } from 'next/app';
 import Head from 'next/head';
 import { MantineProvider } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
+import { NotificationsProvider } from '@mantine/notifications'
 
 export default function App(props: AppProps) {
   const { Component, pageProps } = props;
@@ -19,10 +20,13 @@ export default function App(props: AppProps) {
         withNormalizeCSS
         defaultProps={{
           Button: {size: smallScreen ? 'sm' : 'lg'},
-          Container: {fluid: true}
+          Container: {fluid: true},
+          Anchor: {target: '_blank'}
         }}
       >
-        <Component {...pageProps} />
+        <NotificationsProvider position='top-right'>
+          <Component {...pageProps} />
+        </NotificationsProvider>
       </MantineProvider>
     </>
   );

@@ -1,8 +1,10 @@
-import { Box, Button, NumberInput, RadioGroup, Radio, Container, Stack } from '@mantine/core';
+import { ThemeIcon, Button, NumberInput, RadioGroup, Radio, Container, Anchor } from '@mantine/core';
 import { DatePicker } from '@mantine/dates'
 import { useContractWrite, useWaitForTransaction } from "wagmi";
 import { BigNumber } from "ethers";
 import { useForm } from '@mantine/form';
+import { showNotification, updateNotification } from '@mantine/notifications';
+import { IconCircleCheck } from '@tabler/icons';
 
 export default function NewContractForm({depositFactoryAddress, depositFactoryABI, account, 
     setNewContractAddress, setIsNewContract, setIsExistingContract, setNewlyCreated,
@@ -16,6 +18,17 @@ export default function NewContractForm({depositFactoryAddress, depositFactoryAB
         contractInterface: depositFactoryABI,
     },
     'createDeposit',
+    {
+        onSuccess(data) {
+            showNotification({
+                id: data.hash,
+                title: 'Creating Contract...',
+                message: <Anchor href={`https://goerli.etherscan.io/tx/${data.hash}`}>View Transaction</Anchor>,
+                loading: true,
+                autoClose: false,
+            })
+        }
+    }
     );
     
     const { isLoading: loading2 } = useWaitForTransaction({
@@ -24,7 +37,14 @@ export default function NewContractForm({depositFactoryAddress, depositFactoryAB
             const emittedAddress = data.logs[0].address;
             setNewContractAddress(emittedAddress);
             setNewlyCreated(true);
-            console.log(`Contract creation successful! Created contract address is: ${emittedAddress}.`);
+            updateNotification({
+                id: data.transactionHash,
+                title: 'Contract Created!',
+                message: <Anchor href={`https://goerli.etherscan.io/tx/${data.transactionHash}`}>View Transaction</Anchor>,
+                loading: false,
+                autoClose: 5000,
+                icon: <ThemeIcon><IconCircleCheck/></ThemeIcon>,
+            })
         }
       }
       );
