@@ -26,6 +26,7 @@ export default function NewContractForm({depositFactoryAddress, depositFactoryAB
                 message: <Anchor href={`https://goerli.etherscan.io/tx/${data.hash}`}>View Transaction</Anchor>,
                 loading: true,
                 autoClose: false,
+                disallowClose: true,
             })
         }
     }

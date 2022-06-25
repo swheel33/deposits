@@ -4,7 +4,6 @@ import ContractInfo from "./ContractInfo";
 import TokenContractInstance from './TokenContractInstance';
 import { useContractRead, useContract, useProvider } from "wagmi";
 
-
 export default function DepositContractInstance({depositContractAddress, depositContractABI,
      newlyCreated, account }) {
     
@@ -143,7 +142,6 @@ export default function DepositContractInstance({depositContractAddress, deposit
         getClaimEligibility();
     },[didDeposit, deadline])
 
-
     useEffect(() => {
         setIsLoading(!depositAmount || !deadline || !agreedDate || !contractState || (!newlyCreated && didApprove === undefined) || (!newlyCreated && didDeposit === undefined));
     },[depositAmount, deadline, agreedDate, contractState, didApprove, didDeposit]) 
@@ -164,7 +162,7 @@ export default function DepositContractInstance({depositContractAddress, deposit
                         seller={seller}
                         newlyCreated={newlyCreated}
                         /> }
-                    {!newlyCreated && <TokenContractInstance 
+                    {(!newlyCreated && tokenAddress) && <TokenContractInstance 
                         tokenAddress={tokenAddress}
                         setDidDeposit={setDidDeposit}
                         setDidApprove={setDidApprove}

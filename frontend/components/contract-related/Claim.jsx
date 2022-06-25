@@ -19,6 +19,7 @@ export default function ClaimInteraction({depositContractAddress, setDidClaim}) 
                 message: <Anchor href={`https://goerli.etherscan.io/tx/${data.hash}`}>View Transaction</Anchor>,
                 loading: true,
                 autoClose: false,
+                disallowClose: true,
             })
         }
     }
