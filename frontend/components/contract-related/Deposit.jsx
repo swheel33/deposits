@@ -40,7 +40,6 @@ export default function DepositInteraction({depositContractAddress, setDidDeposi
     }
     )
     
-    
     return (
         <Button onClick={() => write()} loading={loading1} hidden={loading2}>Deposit</Button>
     )
