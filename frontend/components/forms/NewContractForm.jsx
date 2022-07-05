@@ -1,89 +1,101 @@
-import { Button, FormControl, FormErrorMessage, Input, FormLabel, VStack, Box, Flex, RadioGroup, HStack, Radio } from "@chakra-ui/react";
-import { Formik, Field, Form } from 'formik'
-import { RadioGroupControl, InputControl } from 'formik-chakra-ui';
-import * as Yup from 'yup'
-import DatePickerField from "./DatePickerField";
-import { useState } from 'react'
-import BackButton from "./BackButton";
+import { ThemeIcon, Button, NumberInput, RadioGroup, Radio, Container, Anchor } from '@mantine/core';
+import { DatePicker } from '@mantine/dates'
+import { useContractWrite, useWaitForTransaction } from "wagmi";
+import { BigNumber } from "ethers";
+import { useForm } from '@mantine/form';
+import { showNotification, updateNotification } from '@mantine/notifications';
+import { IconCircleCheck } from '@tabler/icons';
 
-
-export default function NewContractForm({depositFactoryContract, accounts, 
-    setNewContractAddress, setIsNewContract, setIsExistingContract, setNewlyCreated, setChosenToken,
-    daiContractAddress, usdcContractAddress, tetherContractAddress}) {
+export default function NewContractForm({depositFactoryAddress, depositFactoryABI, account, 
+    setNewContractAddress, setIsNewContract, setIsExistingContract, setNewlyCreated,
+    daiContractAddress, usdcContractAddress}) {
     const today = new Date();
     let yesterday = new Date();
     yesterday.setDate(today.getDate() - 1);
 
-    const [loading, setLoading] = useState(false);
-
-    const depositHandler = async (approvalAmount, meetupDate, chosenTokenAddress) => {
-        try {
-            setLoading(true);
-            const tx = await depositFactoryContract.createDeposit(approvalAmount, meetupDate , chosenTokenAddress, accounts[0]);
-            const receipt = await tx.wait();
-            const emittedAddress = receipt.logs[0].address;
-            setNewlyCreated(true);
-            setChosenToken(determineChosenToken(chosenTokenAddress));
-            setNewContractAddress(emittedAddress);
-            console.log(`Contract creation successful! Created contract address is: ${emittedAddress}. Deposit amount is ${approvalAmount} and the agreed date is ${meetupDate}.`);
-        } catch (error) {
-            console.log(error);
-            setLoading(false);
+    const { data, write, isLoading: loading1 } = useContractWrite({
+        addressOrName: depositFactoryAddress,
+        contractInterface: depositFactoryABI,
+    },
+    'createDeposit',
+    {
+        onSuccess(data) {
+            showNotification({
+                id: data.hash,
+                title: 'Creating Contract...',
+                message: <Anchor href={`https://goerli.etherscan.io/tx/${data.hash}`}>View Transaction</Anchor>,
+                loading: true,
+                autoClose: false,
+                disallowClose: true,
+            })
         }
     }
-
-    const determineChosenToken = chosenTokenAddress => {
-        if (chosenTokenAddress === daiContractAddress) {
-            return 'Dai';
-        } else if (chosenTokenAddress === usdcContractAddress) {
-            return 'USDC';
-        } else if (chosenTokenAddress === tetherContractAddress) {
-            return 'Tether'
-        } else {
-            return null
+    );
+    
+    const { isLoading: loading2 } = useWaitForTransaction({
+        hash: data?.hash,
+        onSuccess(data) {
+            const emittedAddress = data.logs[0].address;
+            setNewContractAddress(emittedAddress);
+            setNewlyCreated(true);
+            updateNotification({
+                id: data.transactionHash,
+                title: 'Contract Created!',
+                message: <Anchor href={`https://goerli.etherscan.io/tx/${data.transactionHash}`}>View Transaction</Anchor>,
+                loading: false,
+                autoClose: 5000,
+                icon: <ThemeIcon><IconCircleCheck/></ThemeIcon>,
+            })
         }
+      }
+      );
+
+    const form = useForm({
+        initialValues: {
+            amount: 0,
+            meetupDate: today,
+            chosenToken: daiContractAddress,
+        },
+        validate: {
+            amount: value => (value > 0 ? null : 'Amount must be greater than zero'),
+            meetupDate: value => (value < yesterday ? 'Meetup date cannot be in the past' : null)
+        }
+    })
+
+    const handleSubmit = values => {
+        const date = parseInt(values.meetupDate.getTime()/1000);
+        let amount;
+        if (values.chosenToken === usdcContractAddress) {
+            amount = BigNumber.from(values.amount).mul(BigNumber.from(10).pow(6))
+        } else if (values.chosenToken === daiContractAddress) {
+            amount = BigNumber.from(values.amount).mul(BigNumber.from(10).pow(18))
+        }
+        write({args: [amount, date, values.chosenToken, account.address]});
     }
 
     return (
-        <Flex>
-                <BackButton setIsExistingContract={setIsExistingContract} setIsNewContract={setIsNewContract}/>
-                <Formik
-                    initialValues={{amount: 0, meetupDate: today, chosenToken: daiContractAddress}}
-                    validationSchema={Yup.object({
-                        amount: Yup.number()
-                            .required('Required')
-                            .min(1, 'Please enter a greater than zero deposit amount')
-                            .integer('Please enter a whole number'),
-                        meetupDate: Yup.date()
-                            .min(yesterday, 'Please enter a future date.')
-                            .nullable()
-                            .default(undefined)
-                            .required('Please enter a meetup date')
-                        })}
-                        onSubmit={values => {
-                            //Need additional formatting since js uses ms for timestamp and blockchain is in s
-                            depositHandler(values.amount, parseInt(values.meetupDate.getTime()/1000), values.chosenToken);
-                        }}
-                    >
-                    {formik =>  (
-                        <Form onSubmit={formik.handleSubmit}>
-                            <VStack>
-                                <InputControl name='amount' label='Deposit Amount'/>
-                                <RadioGroupControl name='chosenToken' label='Deposit Token'>
-                                    <Radio value={daiContractAddress}>Dai</Radio>
-                                    <Radio value={usdcContractAddress}>USDC</Radio>
-                                    <Radio value={tetherContractAddress}>Tether</Radio>
-                                </RadioGroupControl>
-                                <FormControl isInvalid={formik.errors.meetupDate && formik.touched.meetupDate}>
-                                    <FormLabel>Meetup Date</FormLabel>
-                                    <DatePickerField name='meetupDate'/>
-                                    <FormErrorMessage>{formik.errors.meetupDate}</FormErrorMessage>
-                                </FormControl>
-                                <Button type='submit' isLoading={loading} loadingText='Creating Contract'>Create Deposit</Button> 
-                            </VStack>
-                        </Form> 
-                    )}
-                </Formik>
-            </Flex> 
+            <Container>
+                <form onSubmit={form.onSubmit(values => handleSubmit(values))}>
+                    <NumberInput 
+                    label='Deposit Amount'
+                    {...form.getInputProps('amount')} mb='1rem'/>
+                    <RadioGroup {...form.getInputProps('chosenToken')} mb='1rem'>
+                        <Radio 
+                        label='USDC'
+                        value={usdcContractAddress}
+                        />
+                        <Radio 
+                        label='DAI'
+                        value={daiContractAddress}
+                        />
+                    </RadioGroup>
+                    <DatePicker 
+                        label='Meetup Date'
+                        {...form.getInputProps('meetupDate')} mb='1rem'/>
+                    <Button hidden={loading1 || loading2} onClick={() => {setIsExistingContract(false); setIsNewContract(false)}} mr='1rem'>Back</Button>
+                    <Button type='submit' loading={loading1 || loading2}>Submit</Button>
+                </form>
+            </Container>
+                
     )
 }

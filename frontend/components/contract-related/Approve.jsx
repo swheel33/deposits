@@ -1,23 +1,47 @@
-import { Button, Box, Text } from '@chakra-ui/react';
-import { useState } from "react";
+import { Button, Anchor, ThemeIcon } from '@mantine/core';
+import { useContractWrite, erc20ABI, useWaitForTransaction } from 'wagmi';
+import { showNotification, updateNotification } from '@mantine/notifications';
+import { IconCircleCheck } from '@tabler/icons';
 
-export default function ApproveInteraction({tokenContract, depositContractAddress, depositAmount, setDidApprove}) {
-    const [loading, setLoading] = useState(false);
+export default function ApproveInteraction({tokenAddress, depositContractAddress, depositAmount, setDidApprove}) {
     
-    const handleApprove = async () => {
-        try {
-            setLoading(true)
-            const tx = await tokenContract.approve(depositContractAddress, depositAmount);
-            await tx.wait();
-            setDidApprove(true);
-            console.log('Successful Approval!');
-        } catch (error) {
-            console.log(error)
-            setLoading(false)
+    const { write, data, isLoading: loading1 } = useContractWrite({
+        addressOrName: tokenAddress,
+        contractInterface: erc20ABI,
+    },
+    'approve',
+    {
+        args: [depositContractAddress, depositAmount],
+        onSuccess(data) {
+            showNotification({
+                id: data.hash,
+                title: 'Approving...',
+                message: <Anchor href={`https://goerli.etherscan.io/tx/${data.hash}`}>View Transaction</Anchor>,
+                loading: true,
+                autoClose: false,
+                disallowClose: true,
+            })
         }
     }
-    
+    )
+
+    const { isLoading: loading2 } = useWaitForTransaction({
+        hash: data?.hash,
+        onSuccess(data) {
+            setDidApprove(true)
+            updateNotification({
+                id: data.transactionHash,
+                title: 'Allowance Approved!',
+                message: <Anchor href={`https://goerli.etherscan.io/tx/${data.transactionHash}`}>View Transaction</Anchor>,
+                loading: false,
+                autoClose: 5000,
+                icon: <ThemeIcon><IconCircleCheck/></ThemeIcon>,
+            })
+        }
+    }
+    )
+   
     return (  
-        <Button onClick={handleApprove} isLoading={loading} loadingText='Approving'>Approve</Button>
+        <Button onClick={() => write()} loading={loading1} hidden={loading2}>Approve</Button>
     )
 }

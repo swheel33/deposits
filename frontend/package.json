@@ -6,8 +6,6 @@
     "pin": "sh -c '{ for X in {coinbase-wallet,core,eip1193,empty,gnosis-safe,metamask,network,types,url,walletconnect}; do lerna add @web3-react/$X --exact --no-bootstrap --scope=example-next; done }'"
   },
   "dependencies": {
-    "@chakra-ui/icons": "^2.0.1",
-    "@chakra-ui/react": "^2.1.2",
     "@coinbase/wallet-sdk": "^3.1.0",
     "@emotion/react": "^11",
     "@emotion/styled": "^11",
@@ -19,6 +17,14 @@
     "@fortawesome/free-regular-svg-icons": "^6.1.1",
     "@fortawesome/free-solid-svg-icons": "^6.1.1",
     "@fortawesome/react-fontawesome": "latest",
+    "@mantine/core": "^4.2.10",
+    "@mantine/dates": "^4.2.10",
+    "@mantine/form": "^4.2.10",
+    "@mantine/hooks": "^4.2.10",
+    "@mantine/next": "^4.2.10",
+    "@mantine/notifications": "^4.2.10",
+    "@rainbow-me/rainbowkit": "^0.3.1",
+    "@tabler/icons": "^1.71.0",
     "@walletconnect/ethereum-provider": "^1.7.8",
     "@web3-react/coinbase-wallet": "8.0.31-beta.0",
     "@web3-react/core": "8.0.30-beta.0",
@@ -30,6 +36,7 @@
     "@web3-react/types": "8.0.17-beta.0",
     "@web3-react/url": "8.0.22-beta.0",
     "@web3-react/walletconnect": "8.0.31-beta.0",
+    "dayjs": "^1.11.3",
     "formik": "^2.2.9",
     "formik-chakra-ui": "^1.6.0",
     "framer-motion": "^6",
@@ -39,7 +46,9 @@
     "react-dom": "^18.0.0",
     "react-hook-form": "^7.31.3",
     "react-icons": "^4.4.0",
+    "tabler-icons-react": "^1.51.0",
     "truncate-eth-address": "^1.0.2",
+    "wagmi": "^0.4.12",
     "yup": "^0.32.11"
   },
   "devDependencies": {

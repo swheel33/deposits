@@ -1,16 +1,20 @@
-import { Button, FormControl, FormErrorMessage, Input, FormLabel, VStack, Box, Flex } from "@chakra-ui/react";
-import { Formik, Field, Form } from 'formik'
-import { InputControl } from 'formik-chakra-ui';
 import { useEffect, useState } from "react";
-import * as Yup from 'yup'
-import BackButton from "./BackButton";
+import { useContract, useProvider } from "wagmi";
+import { Box, Button, Container, Stack, TextInput } from '@mantine/core';
+import { useForm } from '@mantine/form';
 
-
-
-export default function ExistingContractForm({depositFactoryContract, setNewContractAddress, setIsNewContract, setIsExistingContract}) {
+export default function ExistingContractForm({depositFactoryAddress, depositFactoryABI,
+     setNewContractAddress, setIsNewContract, setIsExistingContract}) {
     const [prevAddresses, setPrevAddresses] = useState([]);
     const [loading, setLoading] = useState(false);
 
+    const provider = useProvider();
+    const depositFactoryContract = useContract({
+        addressOrName: depositFactoryAddress,
+        contractInterface: depositFactoryABI,
+        signerOrProvider: provider,
+    })
+    
     const allPrevContracts = async () => {
         setLoading(true);
         const filter = depositFactoryContract.filters.DepositCreated();
@@ -22,40 +26,32 @@ export default function ExistingContractForm({depositFactoryContract, setNewCont
 
     //Render all previous contract addresses on mount
     useEffect(() => {
-        if(depositFactoryContract) {
-            allPrevContracts()
+        allPrevContracts();
+    },[])
+
+    const form = useForm({
+        initialValues: {
+            contractAddress: ''
+        },
+        validate: {
+            contractAddress: value => (prevAddresses.includes(value) ? null : 'Please enter a valid deposit contract address'),
         }
-    },[depositFactoryContract])
+    })
+
+    const handleSubmit = values => {
+        setNewContractAddress(values.contractAddress);
+    }
 
     return (
-     <Flex>
-        <BackButton setIsExistingContract={setIsExistingContract} setIsNewContract={setIsNewContract}/>
-        <Formik
-            initialValues={{address: ''}}
-            validationSchema={Yup.object({
-                address: Yup.string()
-                    .required('Required unless creating a new Deposit contract')
-                    .oneOf(prevAddresses, `Please enter a valid Deposit contract address. If you don't have one you can
-                    create a Deposit contract with the Create Deposit button`)
-                })}
-                onSubmit={(values,actions) => {
-                    setNewContractAddress(values.address)
-                    actions.resetForm();
-                }}
-            >
-            {formik =>  (
-                <Form onSubmit={formik.handleSubmit}>
-                    <VStack>
-                        <InputControl name='address' label='Contract Address'/>
-                        <Button isDisabled={loading} type='submit'>Submit</Button> 
-                    </VStack>
-                </Form> 
-            )}
-        </Formik>
-     </Flex>
-     
-     
-            
-        
+     <Container>
+            <form onSubmit={form.onSubmit(values => handleSubmit(values))}>
+                <TextInput 
+                placeholder='0x...'
+                {...form.getInputProps('contractAddress')} mb='1rem'/>
+                <Button onClick={() => {setIsExistingContract(false); setIsNewContract(false)}} mr='1rem'>Back</Button>
+                <Button type='submit' loading={loading}>Submit</Button>
+            </form>
+     </Container>
+
     )
 }

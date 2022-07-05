@@ -18,6 +18,10 @@ module.exports = {
       url: `https://eth-rinkeby.alchemyapi.io/v2/${process.env.RINKEBY_API_KEY}`,
       accounts: [`${process.env.PRIVATE_KEY}`]
     },
+    goerli: {
+      url: `https://eth-goerli.alchemyapi.io/v2/${process.env.GOERLI_API_KEY}`,
+      accounts: [`${process.env.PRIVATE_KEY}`]
+    }
     
   },
   etherscan: {

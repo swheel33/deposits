@@ -1,23 +1,48 @@
-import { Button } from "@chakra-ui/react";
-import { useState } from "react";
+import { Button, Anchor, ThemeIcon } from '@mantine/core';
+import depositABI from '../../contracts/Deposit.json';
+import { useWaitForTransaction, useContractWrite } from 'wagmi';
+import { showNotification, updateNotification } from '@mantine/notifications';
+import { IconCircleCheck } from '@tabler/icons';
 
-export default function ClaimInteraction({depositContract, setDidClaim}) {
-    const [loading, setLoading] = useState(false);
+export default function ClaimInteraction({depositContractAddress, setDidClaim}) {
     
-    const handleClaimFunds = async () => {
-        try {
-            setLoading(true);
-            const tx = await depositContract.claimFunds();
-            await tx.wait();
-            setDidClaim(true);
-            console.log('Deposit claim successful!')
-        } catch (error) {
-            console.log(error);
-            setLoading(false);
+    const { write, data, isLoading: loading1 } = useContractWrite({
+        addressOrName: depositContractAddress,
+        contractInterface: depositABI.abi,
+    },
+    'claimFunds',
+    {
+        onSuccess(data) {
+            showNotification({
+                id: data.hash,
+                title: 'Claiming...',
+                message: <Anchor href={`https://goerli.etherscan.io/tx/${data.hash}`}>View Transaction</Anchor>,
+                loading: true,
+                autoClose: false,
+                disallowClose: true,
+            })
         }
     }
+    )
+
+    const { isLoading: loading2 } = useWaitForTransaction({
+        hash: data?.hash,
+        onSuccess(data) {
+            setDidClaim(true)
+            updateNotification({
+                id: data.transactionHash,
+                title: 'Deposit Claimed!',
+                message: <Anchor href={`https://goerli.etherscan.io/tx/${data.transactionHash}`}>View Transaction</Anchor>,
+                loading: false,
+                autoClose: 5000,
+                icon: <ThemeIcon><IconCircleCheck/></ThemeIcon>,
+            })
+        }
+    }
+    )
+    
     
     return (
-        <Button onClick={handleClaimFunds} isLoading={loading} loadingText='Claiming Funds'>Claim Funds</Button>
+        <Button onClick={() => write()} loading={loading1} hidden={loading2}>Claim Funds</Button>
     )
 }
